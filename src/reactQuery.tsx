@@ -74,6 +74,7 @@ const MemoryTokenStorage = () => {
 
   return {
     setToken: (token: string) => {
+      localStorage.setItem("token", token);
       authToken = token;
     },
     getToken: () => authToken,

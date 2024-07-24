@@ -3,6 +3,7 @@ import Peer from "peerjs";
 //import { v4 as uuidV4 } from "uuid";
 import { ws } from "../ws";
 import { Socket } from "socket.io-client";
+import { useChats } from "./ChatContext";
 
 export const RoomContext = createContext<{
   ws: Socket;
@@ -15,6 +16,7 @@ export const RoomContext = createContext<{
 export const RoomProvider: React.FunctionComponent<{
   children: React.ReactNode;
 }> = ({ children }) => {
+  //const { messages, setMessages } = useChats();
   const [me, setMe] = useState<Peer>();
   ///const [peers, dispatch] = useReducer(peersReducer, {});
   const [stream, setStream] = useState<MediaStream>();

@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 
 export default function Chat() {
-  const { chat } = useChats();
+  const { chat, setMessages, messages } = useChats();
   const [archived, setArchived] = useState(false);
   const {
     data: chats,

@@ -10,15 +10,15 @@ import {
 
 import { Chat } from "@/routes/chat/data";
 //import { useGetChats } from "@/routes/chat/hooks/queries";
-import { MessageProp } from "@/routes/chat/hooks/type";
+import { Message } from "@/routes/chat/hooks/type";
 
 type TChatContext = {
   /*  chats: Chat[];
   isLoading: boolean; */
   chat: Chat | null;
-  messages: MessageProp | null;
+  messages: Message[] | null;
   setChat: Dispatch<SetStateAction<Chat | null>>;
-  setMessages: Dispatch<SetStateAction<MessageProp | null>>;
+  setMessages: Dispatch<SetStateAction<Message[] | null>>;
 };
 
 const ChatContext = createContext<TChatContext | null>(null);
@@ -30,16 +30,16 @@ type Props = {
 export const ChatProvider = ({ children }: Props): JSX.Element => {
   //const { data, isLoading } = useGetChats();
   const [chat, setChat] = useState<Chat | null>(null);
-  const [messages, setMessages] = useState<MessageProp | null>(null);
+  const [messages, setMessages] = useState<Message[] | null>(null);
   // memorize the workspace details for the context
-  const value =  {
-      chat,
-      setChat,
-      messages,
-      setMessages,
-      /*  chats: data || [],
+  const value = {
+    chat,
+    setChat,
+    messages,
+    setMessages,
+    /*  chats: data || [],
       isLoading, */
-    }; 
+  };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

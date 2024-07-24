@@ -33,11 +33,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <div className="h-full overflow-y-hidden">
       <QueryClientProvider client={queryClient}>
-        <RoomProvider>
-          <ChatProvider>
+        <ChatProvider>
+          <RoomProvider>
             <RouterProvider router={router} />
-          </ChatProvider>
-        </RoomProvider>
+          </RoomProvider>
+        </ChatProvider>
       </QueryClientProvider>
       <Toaster />
     </div>

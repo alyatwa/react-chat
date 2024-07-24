@@ -18,7 +18,7 @@ interface Chat {
   lastMessage: string;
 }
 
-interface Message {
+export interface Message {
   _id: string;
   ownerUserId: string;
   text: string;

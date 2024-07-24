@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Check, Plus, Send } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -33,10 +32,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Chat } from "../data";
 import { useChats } from "@/context";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import { ws } from "@/ws";
+import { useEffect, useRef, useState } from "react";
 const users = [
   {
     name: "Olivia Martin",
@@ -68,11 +67,17 @@ const users = [
 type User = (typeof users)[number];
 
 export default function ChatDisplay() {
-  const { messages } = useChats();
-  const [open, setOpen] = React.useState(false);
-  const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
+  const { messages, setMessages, chat } = useChats();
+  const [open, setOpen] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [isFirstUpdate, setIsFirstUpdate] = useState(false);
+  useEffect(() => {
+    if ((messages ?? []).length > 0 && !isFirstUpdate) {
+      setIsFirstUpdate(true); // Mark that the first update has occurred
+    }
+  }, [messages, isFirstUpdate]);
 
-  /* const [messages, setMessages] = React.useState([
+  /* const [messages, setMessages] = useState([
     {
       role: "agent",
       content: "Hi, how can I help you today?",
@@ -90,9 +95,122 @@ export default function ChatDisplay() {
       content: "I can't log in.",
     },
   ]); */
-  const [input, setInput] = React.useState("");
+  const [input, setInput] = useState("");
   const inputLength = input.trim().length;
-  console.log(messages ?? "");
+
+  const sendMessage = () => {
+    if (inputLength === 0) return;
+    setMessages([
+      ...(messages || []),
+      {
+        byMe: true,
+        text: input,
+        _id: "",
+        ownerUserId: "",
+        chatId: "",
+        groupId: null,
+        seen: false,
+        delivered: false,
+        seenAuth: [],
+        deliveredAuth: [],
+        attachments: [],
+        isDeleted: false,
+        isReply: false,
+        type: 0,
+        media: [],
+        love: [],
+        wow: [],
+        sad: [],
+        angry: [],
+        like: [],
+        sharesCount: 0,
+        likesCount: 0,
+        loveCount: 0,
+        wowCount: 0,
+        sadCount: 0,
+        angryCount: 0,
+        createdAt: "",
+        updatedAt: "",
+      },
+    ]);
+    setInput("");
+    scrollToBottom();
+    ws.emit(
+      "Message:Send",
+      JSON.stringify({
+        chatId: chat?._id,
+        type: 1,
+        mediaIds: [],
+        text: input,
+        groupId: null,
+      })
+    );
+  };
+
+  const newMessage = (msg: any) => {
+    console.log("msgs ........... ", messages);
+    console.log("newMessage ........... ", msg);
+
+    //ws.emit("user:message", { message: "Hola" });
+
+    setMessages([
+      ...(messages || []),
+      {
+        byMe: false,
+        text: msg.message.text,
+        _id: "",
+        ownerUserId: "",
+        chatId: "",
+        groupId: null,
+        seen: false,
+        delivered: false,
+        seenAuth: [],
+        deliveredAuth: [],
+        attachments: [],
+        isDeleted: false,
+        isReply: false,
+        type: 0,
+        media: [],
+        love: [],
+        wow: [],
+        sad: [],
+        angry: [],
+        like: [],
+        sharesCount: 0,
+        likesCount: 0,
+        loveCount: 0,
+        wowCount: 0,
+        sadCount: 0,
+        angryCount: 0,
+        createdAt: "",
+        updatedAt: "",
+      },
+    ]);
+  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const listenerAddedRef = useRef(false);
+
+  useEffect(() => {
+    if (isFirstUpdate) {
+      console.log("Adding WebSocket listener");
+      ws.on("user:message", newMessage);
+      listenerAddedRef.current = true;
+
+      return () => {
+        console.log("Removing WebSocket listener");
+        // Assuming ws.off is the method to remove the listener, replace it with your actual method if different
+        ws.off("user:message", newMessage);
+        listenerAddedRef.current = false;
+      };
+    }
+  }, [isFirstUpdate]);
+  const chatRef = useRef<HTMLDivElement>(null);
+  const scrollToBottom = () => {
+    chatRef.current?.scrollIntoView(false);
+  };
   return (
     <div className="h-screen ">
       <Card className="h-full relative">
@@ -106,12 +224,8 @@ export default function ChatDisplay() {
               <AvatarFallback>OM</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium leading-none">
-                {messages?.chat._id ?? ""}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {messages?.chat.createdAt ?? ""}
-              </p>
+              <p className="text-sm font-medium leading-none">username</p>
+              <p className="text-sm text-muted-foreground">Date</p>
             </div>
           </div>
           <TooltipProvider delayDuration={0}>
@@ -133,9 +247,9 @@ export default function ChatDisplay() {
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="h-[435px] ">
-            <div className="space-y-4 h-full p-6">
+            <div className="space-y-4 h-full p-6" ref={chatRef}>
               {messages &&
-                messages.messages.map((message, index) => (
+                messages.map((message, index) => (
                   <div
                     key={index}
                     className={cn(
@@ -158,14 +272,7 @@ export default function ChatDisplay() {
             onSubmit={(event) => {
               event.preventDefault();
               if (inputLength === 0) return;
-              /* setMessages([
-                ...messages,
-                {
-                  role: "user",
-                  content: input,
-                },
-              ]); */
-              setInput("");
+              sendMessage();
             }}
             className="flex w-full items-center space-x-2 "
           >

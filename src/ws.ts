@@ -1,6 +1,6 @@
 import socketIOClient from "socket.io-client";
 
-export const WS = "http://localhost:3000"; // "https://49dev.com";
+export const WS = "https://49dev.com"; // "http://localhost:3000";
 
 export const ws = socketIOClient(WS, {
   extraHeaders: {

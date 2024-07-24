@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Chat } from "../data";
-import { atom, useAtom } from "jotai";
 import { useChats } from "@/context";
 import { useGetChat } from "../hooks/queries";
+import { ws } from "@/ws";
 //import { useChat } from "../use-chat";
 
 interface ChatListProps {
@@ -21,6 +21,7 @@ export default function ChatList({ items }: ChatListProps) {
   const handleMessages = (chat: Chat) => {
     setChat(chat);
     refetch();
+    ws.emit("Chat:joinRoom", JSON.stringify({ chatId: chat._id }));
   };
 
   useEffect(() => {
