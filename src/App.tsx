@@ -13,7 +13,7 @@ function App() {
   const [currentCall, setCurrentCall] = useState<
     MediaConnection | null | undefined
   >(null);
-  const peerConnection = useRef<RTCPeerConnection>();
+  //const peerConnection = useRef<RTCPeerConnection>();
   const [incomingCall, setIncomingCall] = useState<MediaConnection | null>(
     null
   );
@@ -199,25 +199,6 @@ function App() {
   };
 
   // Create PeerConnection function
-  const createPeerConnection = () => {
-    // Initialize PeerConnection
-    peerConnection.current = new RTCPeerConnection();
-
-    // On ICE candidate event
-    peerConnection.current.onicecandidate = (event) => {
-      if (event.candidate) {
-        console.log(
-          `Sending ICE candidate to remote peer: ${JSON.stringify(event.candidate)}`
-        );
-        const channel = peerConnection.current!.createDataChannel("channel");
-        channel.onopen = function (e) {
-          if (channel.readyState === "open") {
-            channel.send(JSON.stringify({ ice: event.candidate }));
-          }
-        };
-      }
-    };
-  };
 
   /*  
     const remotePeerId = peerId;

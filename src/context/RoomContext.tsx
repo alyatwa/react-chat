@@ -1,9 +1,8 @@
 import { createContext, useEffect, useState } from "react";
-import Peer from "peerjs";
+//import Peer from "peerjs";
 //import { v4 as uuidV4 } from "uuid";
 import { ws } from "../ws";
 import { Socket } from "socket.io-client";
-import { useChats } from "./ChatContext";
 
 export const RoomContext = createContext<{
   ws: Socket;
@@ -17,11 +16,11 @@ export const RoomProvider: React.FunctionComponent<{
   children: React.ReactNode;
 }> = ({ children }) => {
   //const { messages, setMessages } = useChats();
-  const [me, setMe] = useState<Peer>();
+  const [me, setMe] = useState<any>();
   ///const [peers, dispatch] = useReducer(peersReducer, {});
-  const [stream, setStream] = useState<MediaStream>();
+  // const [stream, setStream] = useState<MediaStream>();
 
-  const handleUserList = ({ participants }: { participants: string[] }) => {
+  /*  const handleUserList = ({ participants }: { participants: string[] }) => {
     participants.map((peerId) => {
       const call = stream && me?.call(peerId, stream);
       console.log("call", call);
@@ -30,10 +29,12 @@ export const RoomProvider: React.FunctionComponent<{
         // dispatch(addPeerAction(peerId, userVideoStream));
       });
     });
-  };
+  }; */
 
   useEffect(() => {
-    const meId = "2425252"; //uuidV4();
+    //const meId = "2425252";
+    setMe("21");
+    //uuidV4();
     /*   const peer = new Peer(meId);
     setMe(peer);
     try {
@@ -46,12 +47,12 @@ export const RoomProvider: React.FunctionComponent<{
       console.error({ err });
     } */
     //ws.on("room-created", enterRoom);
-    ws.on("get-users", handleUserList);
+    //ws.on("get-users", handleUserList);
     //ws.on("user-disconnected", removePeer);
   }, []);
 
   useEffect(() => {
-    if (!stream) return;
+    // if (!stream) return;
     if (!me) return;
 
     /*     ws.on("user-joined", ({ peerId }: { roomId: string; peerId: string }) => {
