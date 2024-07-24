@@ -36,6 +36,7 @@ import { useChats } from "@/context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ws } from "@/ws";
 import { useEffect, useRef, useState } from "react";
+import { Message } from "../hooks/type";
 const users = [
   {
     name: "Olivia Martin",
@@ -68,6 +69,11 @@ type User = (typeof users)[number];
 
 export default function ChatDisplay() {
   const { messages, setMessages, chat } = useChats();
+  const messagesRef = useRef<Message[] | null>(messages);
+  // Update the messagesRef.current on messages state change
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
   const [open, setOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isFirstUpdate, setIsFirstUpdate] = useState(false);
@@ -75,6 +81,7 @@ export default function ChatDisplay() {
     if ((messages ?? []).length > 0 && !isFirstUpdate) {
       setIsFirstUpdate(true); // Mark that the first update has occurred
     }
+    messagesRef.current = messages;
   }, [messages, isFirstUpdate]);
 
   /* const [messages, setMessages] = useState([
@@ -101,7 +108,7 @@ export default function ChatDisplay() {
   const sendMessage = () => {
     if (inputLength === 0) return;
     setMessages([
-      ...(messages || []),
+      ...(messagesRef.current || []),
       {
         byMe: true,
         text: input,
@@ -154,7 +161,7 @@ export default function ChatDisplay() {
     //ws.emit("user:message", { message: "Hola" });
 
     setMessages([
-      ...(messages || []),
+      ...(messagesRef.current || []),
       {
         byMe: false,
         text: msg.message.text,
