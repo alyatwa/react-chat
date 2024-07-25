@@ -1,4 +1,4 @@
-interface User {
+/* interface User {
   _id: string;
   contactUserId: string;
   ownerUserId: string;
@@ -9,7 +9,7 @@ interface User {
   tab: string;
   updatedAt: string;
 }
-
+ */
 // Define the Chat interface
 export interface Chat {
   _id: string;
