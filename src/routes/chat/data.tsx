@@ -15,9 +15,11 @@ export interface Chat {
   _id: string;
   archived: boolean;
   muted: boolean;
-  user: User;
+  name: string;
+  avatar: string;
+  //user: User;
   seen: boolean;
-  lastMessageText: string;
+  lastMessageText?: string;
   lastSeenCount: number;
 }
 

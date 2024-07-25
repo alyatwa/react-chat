@@ -16,7 +16,7 @@ interface ChatListProps {
 
 export default function ChatList({ items }: ChatListProps) {
   const { chat, setChat, setMessages } = useChats();
-  const { data: messages, refetch, status } = useGetChat(chat?._id || null);
+  const { data: messages, refetch } = useGetChat(chat?._id || null);
 
   const handleMessages = (chat: Chat) => {
     setChat(chat);
@@ -25,14 +25,12 @@ export default function ChatList({ items }: ChatListProps) {
   };
 
   useEffect(() => {
-    console.log(status);
     refetch();
-    console.log(messages);
     if (messages) {
       setMessages(messages);
     }
   }, [refetch, chat, messages]);
-
+  console.log(items);
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-2 p-4 pt-0">
@@ -50,7 +48,7 @@ export default function ChatList({ items }: ChatListProps) {
               <div className="flex w-full flex-col gap-1">
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
-                    <div className="font-semibold">{item.user.name}</div>
+                    <div className="font-semibold">{item.name}</div>
                     {false && (
                       <span className="flex h-2 w-2 rounded-full bg-blue-600" />
                     )}
@@ -73,7 +71,7 @@ export default function ChatList({ items }: ChatListProps) {
                 </div>
               </div>
               <div className="line-clamp-2 text-xs text-muted-foreground">
-                {item.lastMessageText.substring(0, 300)}
+                {(item.lastMessageText ?? "No msgs yet").substring(0, 300)}
               </div>
 
               <div className="flex items-center gap-2">

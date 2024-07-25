@@ -70,13 +70,18 @@ type User = (typeof users)[number];
 export default function ChatDisplay() {
   const { messages, setMessages, chat } = useChats();
   const messagesRef = useRef<Message[] | null>(messages);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
   // Update the messagesRef.current on messages state change
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+
   const [open, setOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isFirstUpdate, setIsFirstUpdate] = useState(false);
+
   useEffect(() => {
     if ((messages ?? []).length > 0 && !isFirstUpdate) {
       setIsFirstUpdate(true); // Mark that the first update has occurred
@@ -84,24 +89,6 @@ export default function ChatDisplay() {
     messagesRef.current = messages;
   }, [messages, isFirstUpdate]);
 
-  /* const [messages, setMessages] = useState([
-    {
-      role: "agent",
-      content: "Hi, how can I help you today?",
-    },
-    {
-      role: "user",
-      content: "Hey, I'm having trouble with my account.",
-    },
-    {
-      role: "agent",
-      content: "What seems to be the problem?",
-    },
-    {
-      role: "user",
-      content: "I can't log in.",
-    },
-  ]); */
   const [input, setInput] = useState("");
   const inputLength = input.trim().length;
 
@@ -155,11 +142,6 @@ export default function ChatDisplay() {
   };
 
   const newMessage = (msg: any) => {
-    console.log("msgs ........... ", messages);
-    console.log("newMessage ........... ", msg);
-
-    //ws.emit("user:message", { message: "Hola" });
-
     setMessages([
       ...(messagesRef.current || []),
       {
@@ -194,16 +176,40 @@ export default function ChatDisplay() {
       },
     ]);
   };
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   const listenerAddedRef = useRef(false);
+  /*********************      Typing Now           ***************** */
+  const [typing, setTyping] = useState(false);
+  const typingRef = useRef<boolean>(false);
+  const typingNow = () => {
+    typingRef.current = true;
+    setTyping(true);
+  };
+
+  //timer to reset typing status
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    console.log("Typing status reset timer started  ", typingRef.current);
+    timeoutRef.current = setTimeout(() => {
+      console.log("fire to ffff", typingRef.current);
+      setTyping(false);
+      typingRef.current = false;
+    }, 3000);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [input, typing]);
 
   useEffect(() => {
     if (isFirstUpdate) {
       console.log("Adding WebSocket listener");
       ws.on("user:message", newMessage);
+      ws.on("messageTyping", typingNow);
+
       listenerAddedRef.current = true;
 
       return () => {
@@ -214,6 +220,14 @@ export default function ChatDisplay() {
       };
     }
   }, [isFirstUpdate]);
+
+  const handleTyping = (value: string) => {
+    console.log(value);
+    //setTyping(true);
+    ws.emit("Message:Typing", JSON.stringify({ chatId: chat?._id }));
+    // You can perform any action you want here
+  };
+
   const chatRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     chatRef.current?.scrollIntoView(false);
@@ -231,7 +245,9 @@ export default function ChatDisplay() {
               <AvatarFallback>OM</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium leading-none">username</p>
+              <p className="text-sm font-medium leading-none">
+                username {typing ? "Typing now..." : ""}
+              </p>
               <p className="text-sm text-muted-foreground">Date</p>
             </div>
           </div>
@@ -289,7 +305,14 @@ export default function ChatDisplay() {
               className="flex-1"
               autoComplete="off"
               value={input}
-              onChange={(event) => setInput(event.target.value)}
+              onChange={(event) => {
+                const newValue = event.target.value;
+                setInput(newValue);
+
+                if (newValue.length >= 3) {
+                  handleTyping(newValue);
+                }
+              }}
             />
             <Button type="submit" size="icon" disabled={inputLength === 0}>
               <Send className="h-4 w-4" />
