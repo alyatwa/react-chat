@@ -190,9 +190,7 @@ export default function ChatDisplay() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    console.log("Typing status reset timer started  ", typingRef.current);
     timeoutRef.current = setTimeout(() => {
-      console.log("fire to ffff", typingRef.current);
       setTyping(false);
       typingRef.current = false;
     }, 3000);
@@ -206,26 +204,20 @@ export default function ChatDisplay() {
 
   useEffect(() => {
     if (isFirstUpdate) {
-      console.log("Adding WebSocket listener");
       ws.on("user:message", newMessage);
       ws.on("messageTyping", typingNow);
 
       listenerAddedRef.current = true;
 
       return () => {
-        console.log("Removing WebSocket listener");
-        // Assuming ws.off is the method to remove the listener, replace it with your actual method if different
         ws.off("user:message", newMessage);
         listenerAddedRef.current = false;
       };
     }
   }, [isFirstUpdate]);
 
-  const handleTyping = (value: string) => {
-    console.log(value);
-    //setTyping(true);
+  const handleTyping = () => {
     ws.emit("Message:Typing", JSON.stringify({ chatId: chat?._id }));
-    // You can perform any action you want here
   };
 
   const chatRef = useRef<HTMLDivElement>(null);
@@ -269,7 +261,7 @@ export default function ChatDisplay() {
           </TooltipProvider>
         </CardHeader>
         <CardContent className="p-0">
-          <ScrollArea className="h-[435px] ">
+          <ScrollArea className="h-[385px] ">
             <div className="space-y-4 h-full p-6" ref={chatRef}>
               {messages &&
                 messages.map((message, index) => (
@@ -290,7 +282,7 @@ export default function ChatDisplay() {
           </ScrollArea>
         </CardContent>
 
-        <CardFooter className="absolute bottom-2 w-full">
+        <CardFooter className="absolute  w-full">
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -310,7 +302,7 @@ export default function ChatDisplay() {
                 setInput(newValue);
 
                 if (newValue.length >= 3) {
-                  handleTyping(newValue);
+                  handleTyping();
                 }
               }}
             />

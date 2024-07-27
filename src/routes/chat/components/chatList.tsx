@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 
 import { cn } from "@/lib/utils";
@@ -30,7 +30,55 @@ export default function ChatList({ items }: ChatListProps) {
       setMessages(messages);
     }
   }, [refetch, chat, messages]);
-  console.log(items);
+
+  useEffect(() => {
+    const data: {
+      archived?: boolean;
+      privacy?: string;
+      isLocked?: boolean;
+      categoryId?: string;
+    } = {
+      archived: false,
+      privacy: "normal",
+      categoryId: "668e7dc4e8cfec5bcc752afc",
+    };
+
+    setInterval(() => {
+      console.log("fetch users status");
+      ws.emit("Chat:usersStatus", JSON.stringify(data));
+    }, 3000);
+  }, []);
+
+  const [status, setStatus] = useState<any>([]);
+  const statusRef = useRef<any[] | null>(status);
+  const [isFirstUpdate, setIsFirstUpdate] = useState(false);
+
+  useEffect(() => {
+    if ((status ?? []).length > 0 && !isFirstUpdate) {
+      setIsFirstUpdate(true); // Mark that the first update has occurred
+    }
+    statusRef.current = status;
+  }, [messages, isFirstUpdate]);
+
+  const updateStatus = (socketData: string) => {
+    const data = JSON.parse(socketData) as {
+      userId: string;
+      online: boolean;
+      chatId: string;
+    }[];
+    console.log("users status..   ", data);
+    setStatus(data);
+  };
+
+  useEffect(() => {
+    if (isFirstUpdate) {
+      ws.on("usersStatus", updateStatus);
+
+      return () => {
+        ws.off("usersStatus", updateStatus);
+      };
+    }
+  }, [isFirstUpdate]);
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-2 p-4 pt-0">

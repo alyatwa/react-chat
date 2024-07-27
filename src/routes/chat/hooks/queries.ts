@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiRequest } from "@/config/request";
-import { Chat } from "../data";
+import { Chat, User } from "../data";
 import { MessageProp } from "./type";
 
 export const chatQueryKeys = {
@@ -21,6 +21,18 @@ export const useGetChats = (query: any) =>
   useQuery({
     queryKey: chatQueryKeys.getChats(),
     queryFn: () => fetchChats(query),
+  });
+
+const fetchUser = async () => {
+  const { data } = await apiRequest.get<{ data: User }>(
+    "/api/v1/users/profile"
+  );
+  return data.data;
+};
+export const useGetUser = () =>
+  useQuery({
+    queryKey: ["get-user"],
+    queryFn: () => fetchUser(),
   });
 
 const fetchChat = async (chatId: string | null) => {

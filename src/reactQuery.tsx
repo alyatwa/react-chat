@@ -87,3 +87,8 @@ export const setAuthToken = authTokenStorage.setToken;
 export const getAuthToken = authTokenStorage.getToken;
 
 export const isLoggedIn = () => Boolean(getAuthToken());
+
+export const logout = () => {
+  localStorage.removeItem("token");
+  window.location.href = "/login";
+};

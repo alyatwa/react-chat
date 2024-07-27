@@ -23,6 +23,14 @@ export interface Chat {
   lastSeenCount: number;
 }
 
+export interface User {
+  profilePicture: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  userId: string;
+}
+
 export const accounts = [
   {
     label: "Alicia Koch",

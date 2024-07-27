@@ -6,17 +6,17 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { RoomProvider } from "./context/RoomContext.tsx";
 import ErrorPage from "./error-page.tsx";
 import Chat from "./routes/chat/chat.tsx";
-import Home from "./routes/home.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import { ChatProvider } from "./context/ChatContext.tsx";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./reactQuery.tsx";
 import Login from "./routes/login/index.tsx";
+import { UserProvider } from "./context/UserContext.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <Chat />,
     errorElement: <ErrorPage />,
   },
   {
@@ -33,11 +33,13 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <div className="h-full overflow-y-hidden">
       <QueryClientProvider client={queryClient}>
-        <ChatProvider>
-          <RoomProvider>
-            <RouterProvider router={router} />
-          </RoomProvider>
-        </ChatProvider>
+        <UserProvider>
+          <ChatProvider>
+            <RoomProvider>
+              <RouterProvider router={router} />
+            </RoomProvider>
+          </ChatProvider>
+        </UserProvider>
       </QueryClientProvider>
       <Toaster />
     </div>
