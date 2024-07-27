@@ -49,7 +49,7 @@ const Header = () => {
             <>
               <Button
                 onClick={() => {
-                  ws.emit("disconnect");
+                  ws.emit("disconnectMe");
                   logout();
                 }}
                 variant="link"
