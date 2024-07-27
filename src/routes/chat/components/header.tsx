@@ -48,7 +48,10 @@ const Header = () => {
           {isLoggedIn() && (
             <>
               <Button
-                onClick={() => logout()}
+                onClick={() => {
+                  ws.emit("disconnect");
+                  logout();
+                }}
                 variant="link"
                 className="text-muted-foreground transition-colors hover:text-foreground"
               >
