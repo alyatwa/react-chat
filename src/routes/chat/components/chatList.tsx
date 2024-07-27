@@ -10,12 +10,8 @@ import { useGetChat } from "../hooks/queries";
 import { ws } from "@/ws";
 //import { useChat } from "../use-chat";
 
-interface ChatListProps {
-  items: Chat[];
-}
-
-export default function ChatList({ items }: ChatListProps) {
-  const { chat, setChat, setMessages } = useChats();
+export default function ChatList() {
+  const { chat, setChat, setMessages, chats, setChats } = useChats();
   const { data: messages, refetch } = useGetChat(chat?._id || null);
 
   const handleMessages = (chat: Chat) => {
@@ -42,11 +38,10 @@ export default function ChatList({ items }: ChatListProps) {
       privacy: "normal",
       categoryId: "668e7dc4e8cfec5bcc752afc",
     };
-
+    initStatus();
     setInterval(() => {
-      console.log("fetch users status");
       ws.emit("Chat:usersStatus", JSON.stringify(data));
-    }, 3000);
+    }, 5000);
   }, []);
 
   const [status, setStatus] = useState<any>([]);
@@ -54,11 +49,17 @@ export default function ChatList({ items }: ChatListProps) {
   const [isFirstUpdate, setIsFirstUpdate] = useState(false);
 
   useEffect(() => {
+    initStatus();
+  }, [status, isFirstUpdate]);
+
+  const initStatus = () => {
     if ((status ?? []).length > 0 && !isFirstUpdate) {
-      setIsFirstUpdate(true); // Mark that the first update has occurred
+      setIsFirstUpdate(false); // Mark that the first update has occurred
+    } else {
+      setIsFirstUpdate(true);
     }
     statusRef.current = status;
-  }, [messages, isFirstUpdate]);
+  };
 
   const updateStatus = (socketData: string) => {
     const data = JSON.parse(socketData) as {
@@ -67,24 +68,37 @@ export default function ChatList({ items }: ChatListProps) {
       chatId: string;
     }[];
     console.log("users status..   ", data);
+    //add each status to the chat
+    setChats((prev) => {
+      return (prev ?? []).map((chat) => {
+        const status = data.find((s) => s.chatId === chat._id);
+        if (status) {
+          return { ...chat, online: status.online };
+        }
+        return chat;
+      });
+    });
     setStatus(data);
   };
 
   useEffect(() => {
     if (isFirstUpdate) {
+      console.log("start status listen socket");
       ws.on("usersStatus", updateStatus);
 
       return () => {
+        console.log("end status listen socket");
         ws.off("usersStatus", updateStatus);
       };
     }
   }, [isFirstUpdate]);
+
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-2 p-4 pt-0">
-        {items &&
-          items.length > 0 &&
-          items.map((item) => (
+        {chats &&
+          chats.length > 0 &&
+          chats.map((item) => (
             <button
               key={item._id}
               className={cn(
@@ -97,9 +111,10 @@ export default function ChatList({ items }: ChatListProps) {
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
                     <div className="font-semibold">{item.name}</div>
-                    {false && (
-                      <span className="flex h-2 w-2 rounded-full bg-blue-600" />
-                    )}
+
+                    <span
+                      className={`flex h-2 w-2 rounded-full ${item.online ? "bg-green-600" : "bg-blue-600"}`}
+                    />
                   </div>
                   <div
                     className={cn(

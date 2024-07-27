@@ -15,6 +15,7 @@ export interface Chat {
   _id: string;
   archived: boolean;
   muted: boolean;
+  online?: boolean;
   name: string;
   avatar: string;
   //user: User;

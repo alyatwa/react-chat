@@ -14,6 +14,8 @@ import { Message } from "@/routes/chat/hooks/type";
 type TChatContext = {
   /*  chats: Chat[];
   isLoading: boolean; */
+  chats: Chat[] | null;
+  setChats: Dispatch<SetStateAction<Chat[] | null>>;
   chat: Chat | null;
   messages: Message[] | null;
   setChat: Dispatch<SetStateAction<Chat | null>>;
@@ -28,6 +30,7 @@ type Props = {
 
 export const ChatProvider = ({ children }: Props): JSX.Element => {
   //const { data, isLoading } = useGetChats();
+  const [chats, setChats] = useState<Chat[] | null>(null);
   const [chat, setChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[] | null>(null);
   // memorize the workspace details for the context
@@ -36,6 +39,8 @@ export const ChatProvider = ({ children }: Props): JSX.Element => {
     setChat,
     messages,
     setMessages,
+    chats,
+    setChats,
     /*  chats: data || [],
       isLoading, */
   };

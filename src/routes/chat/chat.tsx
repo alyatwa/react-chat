@@ -16,29 +16,32 @@ import { useEffect, useState } from "react";
 import Header from "./components/header";
 import { isLoggedIn } from "@/reactQuery";
 
-export default function Chat() {
-  const { chat } = useChats();
+export default function ChatP() {
+  const { chat, chats, setChats } = useChats();
   const [archived, setArchived] = useState(false);
-  const {
-    data: chats,
-    isLoading,
-    refetch,
-  } = useGetChats({
+  const { data, isLoading, refetch } = useGetChats({
     privacy: "normal",
     categoryId: "668e7dc4e8cfec5bcc752afc",
     archived,
   });
-
   useEffect(() => {
     refetch();
+    setChats(data ?? []);
   }, [archived, refetch]);
+
+  useEffect(() => {
+    setChats(data ?? []);
+  }, [data]);
   useEffect(() => {
     if (!isLoggedIn()) {
       window.location.href = "/login";
+    } else {
+      refetch();
     }
   }, []);
   const handleTabChange = (value: string) => {
     setArchived(value == "archived");
+    refetch();
   };
 
   return (
@@ -76,10 +79,10 @@ export default function Chat() {
               <Separator className="mb-2" />
 
               <TabsContent value="all" className="m-0">
-                {isLoading || !chats ? <Loader /> : <ChatList items={chats} />}
+                {isLoading || !chats ? <Loader /> : <ChatList />}
               </TabsContent>
               <TabsContent value="archived" className="m-0">
-                {isLoading || !chats ? <Loader /> : <ChatList items={chats} />}
+                {isLoading || !chats ? <Loader /> : <ChatList />}
               </TabsContent>
             </Tabs>
           </ResizablePanel>
