@@ -198,26 +198,31 @@ export default function ChatDisplay() {
     setTyping(true);
   };
 
-  const messageSeen = (message: IMessage) => {
-    //update message in messages state to seen true
+  const messageSeen = (data: string) => {
+    const { messages: seenMessages } = JSON.parse(data) as {
+      messages: IMessage[];
+    };
+    //update messages state to seen true for each msg
     setMessages((prev) => {
-      return (prev ?? []).map((msg) => {
-        if (msg.byMe && msg._id === message._id) {
-          return { ...msg, seen: true };
-        }
-        return msg;
-      });
+      return (prev ?? []).map((msg) =>
+        seenMessages.some((seenMsg) => seenMsg._id === msg._id)
+          ? { ...msg, seen: true }
+          : msg
+      );
     });
   };
 
-  const messageDelivered = (message: IMessage) => {
+  const messageDelivered = (data: string) => {
+    const { messages: deliveredMessages } = JSON.parse(data) as {
+      messages: IMessage[];
+    };
+    //update messages state to delivered true for each msg
     setMessages((prev) => {
-      return (prev ?? []).map((msg) => {
-        if (msg.byMe && msg._id === message._id) {
-          return { ...msg, delivered: true };
-        }
-        return msg;
-      });
+      return (prev ?? []).map((msg) =>
+        deliveredMessages.some((deliveredMsg) => deliveredMsg._id === msg._id)
+          ? { ...msg, delivered: true }
+          : msg
+      );
     });
   };
 
