@@ -67,7 +67,7 @@ export default function ChatList() {
       online: boolean;
       chatId: string;
     }[];
-    console.log("users status..   ", data);
+    //console.log("users status..   ", data);
     //add each status to the chat
     setChats((prev) => {
       return (prev ?? []).map((chat) => {

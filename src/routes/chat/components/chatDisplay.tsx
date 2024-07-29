@@ -37,6 +37,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ws } from "@/ws";
 import { useEffect, useRef, useState } from "react";
 import { Message } from "../hooks/type";
+import { CheckCheck } from "lucide-react";
 const users = [
   {
     name: "Olivia Martin",
@@ -68,6 +69,9 @@ const users = [
 type User = (typeof users)[number];
 
 export default function ChatDisplay() {
+  const [isTabActive, setIsTabActive] = useState(true);
+  const isTabActiveRef = useRef(true);
+
   const { messages, setMessages, chat } = useChats();
   const messagesRef = useRef<Message[] | null>(messages);
   useEffect(() => {
@@ -141,6 +145,7 @@ export default function ChatDisplay() {
     );
   };
 
+  /***************** when user receive new message ************ */
   const newMessage = (msg: any) => {
     setMessages([
       ...(messagesRef.current || []),
@@ -175,15 +180,49 @@ export default function ChatDisplay() {
         updatedAt: "",
       },
     ]);
+    if (isTabActiveRef) {
+      ws.emit(
+        "Message:Seen",
+        JSON.stringify({ chatId: chat?._id, messageId: msg.message._id })
+      );
+    }
+    ws.emit(
+      "Message:Delivered",
+      JSON.stringify({ chatId: chat?._id, messageId: msg.message._id })
+    );
   };
 
   const listenerAddedRef = useRef(false);
+
   /*********************      Typing Now           ***************** */
   const [typing, setTyping] = useState(false);
   const typingRef = useRef<boolean>(false);
   const typingNow = () => {
     typingRef.current = true;
     setTyping(true);
+  };
+
+  const messageSeen = () => {
+    //update message in messages state to seen true
+    setMessages((prev) => {
+      return (prev ?? []).map((msg) => {
+        if (msg.byMe) {
+          return msg;
+        }
+        return { ...msg, seen: true };
+      });
+    });
+  };
+
+  const messageDelivered = () => {
+    setMessages((prev) => {
+      return (prev ?? []).map((msg) => {
+        if (msg.byMe) {
+          return msg;
+        }
+        return { ...msg, delivered: true };
+      });
+    });
   };
 
   //timer to reset typing status
@@ -206,6 +245,8 @@ export default function ChatDisplay() {
     if (isFirstUpdate) {
       ws.on("user:message", newMessage);
       ws.on("messageTyping", typingNow);
+      ws.on("messageSeen", messageSeen);
+      ws.on("messageDelivered", messageDelivered);
 
       listenerAddedRef.current = true;
 
@@ -224,8 +265,45 @@ export default function ChatDisplay() {
   const scrollToBottom = () => {
     chatRef.current?.scrollIntoView(false);
   };
+  const divRef = useRef<HTMLDivElement | null>(null);
+
+  const handleTabLeave = () => {
+    setIsTabActive(false);
+    isTabActiveRef.current = false;
+  };
+  const handleTabEnter = () => {
+    setIsTabActive(true);
+    isTabActiveRef.current = true;
+  };
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const isTabNowActive = !document.hidden;
+      if (!isTabNowActive) {
+        handleTabLeave();
+      } else {
+        handleTabEnter();
+      }
+    };
+    const handleWindowBlur = () => {
+      handleTabLeave();
+    };
+    const handleWindowFocus = () => {
+      handleTabEnter();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleWindowBlur);
+    window.addEventListener("focus", handleWindowFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleWindowBlur);
+      window.removeEventListener("focus", handleWindowFocus);
+    };
+  }, []);
+
   return (
-    <div className="h-screen ">
+    <div className="h-screen " ref={divRef}>
       <Card className="h-full relative">
         <CardHeader className="flex flex-row items-center">
           <div className="flex items-center space-x-4">
@@ -238,7 +316,8 @@ export default function ChatDisplay() {
             </Avatar>
             <div>
               <p className="text-sm font-medium leading-none">
-                username {typing ? "Typing now..." : ""}
+                username {typing ? "Typing now..." : ""}{" "}
+                {isTabActive ? " You see the chat" : "You left the chat"}
               </p>
               <p className="text-sm text-muted-foreground">Date</p>
             </div>
@@ -275,7 +354,17 @@ export default function ChatDisplay() {
                         : "bg-muted"
                     )}
                   >
-                    {message.text}
+                    <p className="flex flex-col justify-center items-end gap-1">
+                      {message.text}
+                      {message.byMe && (
+                        <CheckCheck
+                          className="h-4 w-4"
+                          color={
+                            message.delivered && message.seen ? "blue" : "gray"
+                          }
+                        />
+                      )}
+                    </p>
                   </div>
                 ))}
             </div>
