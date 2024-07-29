@@ -323,6 +323,8 @@ export default function ChatDisplay() {
     ws.emit("Message:Delivered", JSON.stringify({ chatId: chat?._id }));
   };
   useEffect(() => {
+    ws.emit("Message:Seen", JSON.stringify({ chatId: chat?._id }));
+    ws.emit("Message:Delivered", JSON.stringify({ chatId: chat?._id }));
     const handleVisibilityChange = () => {
       const isTabNowActive = !document.hidden;
       if (!isTabNowActive) {
