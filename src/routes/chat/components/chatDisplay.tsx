@@ -141,6 +141,7 @@ export default function ChatDisplay() {
         chatId: chat?._id,
         type: 1,
         mediaIds: [],
+        id: new ObjectId().toHexString(),
         text: input,
         groupId: null,
       })
@@ -152,7 +153,7 @@ export default function ChatDisplay() {
     setMessages([
       ...(messagesRef.current || []),
       {
-        _id: new ObjectId().toHexString(),
+        _id: msg.message._id, // new ObjectId().toHexString(),
         byMe: false,
         text: msg.message.text,
         ownerUserId: "",
@@ -207,6 +208,7 @@ export default function ChatDisplay() {
       //update messages state to seen true for each msg
 
       setMessages((prev) => {
+        console.log("prev", prev);
         return (prev ?? []).map((msg) =>
           seenMessages.some((seenMsg) => seenMsg._id === msg._id)
             ? { ...msg, seen: true }
@@ -215,6 +217,7 @@ export default function ChatDisplay() {
       });
 
       setMessages(() => {
+        console.log("ref", messagesRef.current);
         return (messagesRef.current ?? []).map((msg) =>
           seenMessages.some((seenMsg) => seenMsg._id === msg._id)
             ? { ...msg, seen: true }
@@ -263,25 +266,10 @@ export default function ChatDisplay() {
   }, [input, typing]);
 
   /*****************************  update last msg id   ****************************** */
-  const updateLastMsgId = (msg: string) => {
-    const message = JSON.parse(msg) as IMessage;
-    /*   setMessages((prev) => {
-      return (prev ?? []).map((msg) =>
-        msg._id === message._id ? { ...msg, _id: message._id } : msg
-      );
-    });
 
-    setMessages(() => {
-      return (messagesRef.current ?? []).map((msg) =>
-        msg._id === message._id ? { ...msg, _id: message._id } : msg
-      );
-    }); */
-
-    console.log("updateLastMsgId", message);
-  };
   useEffect(() => {
     if (isFirstUpdate) {
-      ws.on("messageSent", updateLastMsgId);
+      //  ws.on("messageSent", updateLastMsgId);
       ws.on("user:message", newMessage);
       ws.on("messageTyping", typingNow);
       ws.on("messageSeen", messageSeen);
