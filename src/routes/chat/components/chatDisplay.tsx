@@ -199,31 +199,49 @@ export default function ChatDisplay() {
   };
 
   const messageSeen = (data: string) => {
-    const { messages: seenMessages } = JSON.parse(data) as {
-      messages: IMessage[];
-    };
-    //update messages state to seen true for each msg
-    setMessages((prev) => {
-      return (prev ?? []).map((msg) =>
-        seenMessages.some((seenMsg) => seenMsg._id === msg._id)
-          ? { ...msg, seen: true }
-          : msg
-      );
-    });
+    console.log("listen messageSeen ssssss", data);
+    const seenMessages = JSON.parse(data) as IMessage[];
+    if (seenMessages && seenMessages.length > 0) {
+      console.log("listen messageSeen", seenMessages);
+      //update messages state to seen true for each msg
+      setMessages((prev) => {
+        return (prev ?? []).map((msg) =>
+          seenMessages.some((seenMsg) => seenMsg._id === msg._id)
+            ? { ...msg, seen: true }
+            : msg
+        );
+      });
+
+      setMessages(() => {
+        return (messagesRef.current ?? []).map((msg) =>
+          seenMessages.some((seenMsg) => seenMsg._id === msg._id)
+            ? { ...msg, seen: true }
+            : msg
+        );
+      });
+    }
   };
 
   const messageDelivered = (data: string) => {
-    const { messages: deliveredMessages } = JSON.parse(data) as {
-      messages: IMessage[];
-    };
-    //update messages state to delivered true for each msg
-    setMessages((prev) => {
-      return (prev ?? []).map((msg) =>
-        deliveredMessages.some((deliveredMsg) => deliveredMsg._id === msg._id)
-          ? { ...msg, delivered: true }
-          : msg
-      );
-    });
+    const deliveredMessages = JSON.parse(data) as IMessage[];
+    if (deliveredMessages && deliveredMessages.length > 0) {
+      console.log("listen messageDelivered", deliveredMessages);
+      //update messages state to delivered true for each msg
+      setMessages((prev) => {
+        return (prev ?? []).map((msg) =>
+          deliveredMessages.some((deliveredMsg) => deliveredMsg._id === msg._id)
+            ? { ...msg, delivered: true }
+            : msg
+        );
+      });
+      setMessages(() => {
+        return (messagesRef.current ?? []).map((msg) =>
+          deliveredMessages.some((deliveredMsg) => deliveredMsg._id === msg._id)
+            ? { ...msg, delivered: true }
+            : msg
+        );
+      });
+    }
   };
 
   //timer to reset typing status
