@@ -326,7 +326,7 @@ export default function ChatDisplay() {
   const handleTabEnter = () => {
     setIsTabActive(true);
     isTabActiveRef.current = true;
-    console.log("on TabEnter emit Seen+Delivered  >>>>");
+    //console.log("on TabEnter emit Seen+Delivered  >>>>", JSON.stringify({ chatId: chat?._id }));
     ws.emit("Message:Seen", JSON.stringify({ chatId: chat?._id }));
     ws.emit("Message:Delivered", JSON.stringify({ chatId: chat?._id }));
   };
