@@ -100,12 +100,13 @@ export default function ChatDisplay() {
 
   const sendMessage = () => {
     if (inputLength === 0) return;
+    const messageId = new ObjectId().toHexString();
     setMessages([
       ...(messagesRef.current || []),
       {
         byMe: true,
         text: input,
-        _id: "",
+        _id: messageId,
         ownerUserId: "",
         chatId: "",
         groupId: null,
@@ -141,7 +142,7 @@ export default function ChatDisplay() {
         chatId: chat?._id,
         type: 1,
         mediaIds: [],
-        id: new ObjectId().toHexString(),
+        messageId,
         text: input,
         groupId: null,
       })
