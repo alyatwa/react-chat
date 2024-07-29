@@ -212,7 +212,13 @@ export default function ChatDisplay() {
         console.log("prev", prev);
         return (prev ?? []).map((msg) =>
           seenMessages.some((seenMsg) => seenMsg._id === msg._id)
-            ? { ...msg, seen: true }
+            ? {
+                ...msg,
+                seen:
+                  seenMessages.find(
+                    (seenMessage) => seenMessage._id === msg._id
+                  )?.seen ?? false,
+              }
             : msg
         );
       });
@@ -221,7 +227,13 @@ export default function ChatDisplay() {
         console.log("ref", messagesRef.current);
         return (messagesRef.current ?? []).map((msg) =>
           seenMessages.some((seenMsg) => seenMsg._id === msg._id)
-            ? { ...msg, seen: true }
+            ? {
+                ...msg,
+                seen:
+                  seenMessages.find(
+                    (seenMessage) => seenMessage._id === msg._id
+                  )?.seen ?? false,
+              }
             : msg
         );
       });
@@ -236,14 +248,26 @@ export default function ChatDisplay() {
       setMessages((prev) => {
         return (prev ?? []).map((msg) =>
           deliveredMessages.some((deliveredMsg) => deliveredMsg._id === msg._id)
-            ? { ...msg, delivered: true }
+            ? {
+                ...msg,
+                delivered:
+                  deliveredMessages.find(
+                    (deliveredMsg) => deliveredMsg._id === msg._id
+                  )?.delivered ?? false,
+              }
             : msg
         );
       });
       setMessages(() => {
         return (messagesRef.current ?? []).map((msg) =>
           deliveredMessages.some((deliveredMsg) => deliveredMsg._id === msg._id)
-            ? { ...msg, delivered: true }
+            ? {
+                ...msg,
+                delivered:
+                  deliveredMessages.find(
+                    (deliveredMsg) => deliveredMsg._id === msg._id
+                  )?.delivered ?? false,
+              }
             : msg
         );
       });

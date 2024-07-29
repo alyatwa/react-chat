@@ -12,8 +12,8 @@ interface IMessage {
   //receiverContactId: string;
   type: number;
   text: string;
-  seen?: string[];
-  delivered?: string[];
+  seen: boolean;
+  delivered: boolean;
   deleteAt?: Date;
   media?: string[] | null;
 }
