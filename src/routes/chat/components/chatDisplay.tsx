@@ -204,7 +204,7 @@ export default function ChatDisplay() {
   /*********************    set msg to seen         ***************** */
   const messageSeen = (data: string) => {
     const seenMessages = JSON.parse(data) as IMessage[];
-    if (seenMessages && seenMessages.length > 0) {
+    if (seenMessages && seenMessages.length > 0 && isTabActiveRef.current) {
       console.log("listen messageSeen", seenMessages);
       //update messages state to seen true for each msg
 
