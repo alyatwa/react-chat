@@ -202,25 +202,25 @@ export default function ChatDisplay() {
     setTyping(true);
   };
 
-  const messageSeen = () => {
+  const messageSeen = (message: IMessage) => {
     //update message in messages state to seen true
     setMessages((prev) => {
       return (prev ?? []).map((msg) => {
-        if (msg.byMe) {
-          return msg;
+        if (msg.byMe && msg._id === message._id) {
+          return { ...msg, seen: true };
         }
-        return { ...msg, seen: true };
+        return msg;
       });
     });
   };
 
-  const messageDelivered = () => {
+  const messageDelivered = (message: IMessage) => {
     setMessages((prev) => {
       return (prev ?? []).map((msg) => {
-        if (msg.byMe) {
-          return msg;
+        if (msg.byMe && msg._id === message._id) {
+          return { ...msg, delivered: true };
         }
-        return { ...msg, delivered: true };
+        return msg;
       });
     });
   };
