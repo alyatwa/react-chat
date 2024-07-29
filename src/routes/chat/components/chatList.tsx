@@ -25,7 +25,7 @@ export default function ChatList() {
   };
 
   useEffect(() => {
-    console.log("eff...............", messages);
+    ///console.log("eff...............", messages);
     if ((messages ?? []).length < 1) {
       refetch();
     }
@@ -136,8 +136,11 @@ export default function ChatList() {
                     })}
                   </div>
                 </div>
-                <div className="text-xs font-medium">
+                <div className="text-xs font-medium flex gap-1 flex-row items-center justify-between">
                   {item.lastMessageText}
+                  <p className="bg-white rounded-full text-base w-8 h-8 p-2 text-black leading-none">
+                    {item.unreadCount}
+                  </p>
                 </div>
               </div>
               <div className="line-clamp-2 text-xs text-muted-foreground">

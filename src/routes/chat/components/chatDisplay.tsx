@@ -185,11 +185,8 @@ export default function ChatDisplay() {
       },
     ]);
     if (isTabActiveRef) {
-      console.log("emit Delivered  >>>>");
       ws.emit("Message:Delivered", JSON.stringify({ chatId: chat?._id }));
     }
-    console.log("emit Seen  >>>>");
-    ws.emit("Message:Seen", JSON.stringify({ chatId: chat?._id }));
   };
 
   const listenerAddedRef = useRef(false);
@@ -204,12 +201,8 @@ export default function ChatDisplay() {
   /*********************    set msg to seen         ***************** */
   const messageSeen = (data: string) => {
     const seenMessages = JSON.parse(data) as IMessage[];
-    if (seenMessages && seenMessages.length > 0 && isTabActiveRef.current) {
-      console.log("listen messageSeen", seenMessages);
-      //update messages state to seen true for each msg
-
+    if (seenMessages && seenMessages.length > 0) {
       setMessages((prev) => {
-        console.log("prev", prev);
         return (prev ?? []).map((msg) =>
           seenMessages.some((seenMsg) => seenMsg._id === msg._id)
             ? {
@@ -224,7 +217,6 @@ export default function ChatDisplay() {
       });
 
       setMessages(() => {
-        console.log("ref", messagesRef.current);
         return (messagesRef.current ?? []).map((msg) =>
           seenMessages.some((seenMsg) => seenMsg._id === msg._id)
             ? {
@@ -243,7 +235,6 @@ export default function ChatDisplay() {
   const messageDelivered = (data: string) => {
     const deliveredMessages = JSON.parse(data) as IMessage[];
     if (deliveredMessages && deliveredMessages.length > 0) {
-      console.log("listen messageDelivered", deliveredMessages);
       //update messages state to delivered true for each msg
       setMessages((prev) => {
         return (prev ?? []).map((msg) =>
@@ -325,6 +316,7 @@ export default function ChatDisplay() {
   };
   const handleTabEnter = () => {
     setIsTabActive(true);
+
     isTabActiveRef.current = true;
     //console.log("on TabEnter emit Seen+Delivered  >>>>", JSON.stringify({ chatId: chat?._id }));
     ws.emit("Message:Seen", JSON.stringify({ chatId: chat?._id }));
@@ -409,7 +401,11 @@ export default function ChatDisplay() {
                         : "bg-muted"
                     )}
                   >
-                    <p className="flex flex-col justify-center items-end gap-1">
+                    <p
+                      data-seen={message.seen}
+                      data-delivered={message.delivered}
+                      className="flex flex-col justify-center items-end gap-1"
+                    >
                       {message.text}
                       {message.byMe &&
                         (message.delivered && message.seen ? (
@@ -421,6 +417,8 @@ export default function ChatDisplay() {
                                 : "gray"
                             }
                           />
+                        ) : message.delivered ? (
+                          <CheckCheck className="h-4 w-4" color={"gray"} />
                         ) : (
                           <Check className="h-4 w-4" color={"gray"} />
                         ))}

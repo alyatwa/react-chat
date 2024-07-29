@@ -22,6 +22,7 @@ export interface Chat {
   seen: boolean;
   lastMessageText?: string;
   lastSeenCount: number;
+  unreadCount: number;
 }
 
 export interface User {
