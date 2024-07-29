@@ -10,20 +10,27 @@ import { useGetChat } from "../hooks/queries";
 import { ws } from "@/ws";
 //import { useChat } from "../use-chat";
 
+const USER_STATUS_TIMEOUT = 20000;
+
 export default function ChatList() {
   const { chat, setChat, setMessages, chats, setChats } = useChats();
   const { data: messages, refetch } = useGetChat(chat?._id || null);
 
-  const handleMessages = (chat: Chat) => {
-    setChat(chat);
+  const handleMessages = (chatH: Chat) => {
+    if (chatH._id === (chat?._id ?? "")) return;
+    setMessages([]);
+    setChat(chatH);
     refetch();
-    ws.emit("Chat:joinRoom", JSON.stringify({ chatId: chat._id }));
+    ws.emit("Chat:joinRoom", JSON.stringify({ chatId: chatH._id }));
   };
 
   useEffect(() => {
-    refetch();
+    console.log("eff...............", messages);
+    if ((messages ?? []).length < 1) {
+      refetch();
+    }
     if (messages) {
-      setMessages(messages);
+      setMessages(messages ?? []);
     }
   }, [refetch, chat, messages]);
 
@@ -41,7 +48,7 @@ export default function ChatList() {
     initStatus();
     setInterval(() => {
       ws.emit("Chat:usersStatus", JSON.stringify(data));
-    }, 5000);
+    }, USER_STATUS_TIMEOUT);
   }, []);
 
   const [status, setStatus] = useState<any>([]);

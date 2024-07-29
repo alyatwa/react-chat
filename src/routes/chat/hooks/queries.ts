@@ -36,13 +36,11 @@ export const useGetUser = () =>
   });
 
 const fetchChat = async (chatId: string | null) => {
-  console.log("fetchChat", chatId);
   if (!chatId) return null;
 
   const { data } = await apiRequest.get<{ data: MessageProp }>(
     `/api/v1/chat/get-chat/${chatId}`
   );
-  console.log(data.data);
   return data.data.messages;
 };
 export const useGetChat = (chatId: string | null) =>

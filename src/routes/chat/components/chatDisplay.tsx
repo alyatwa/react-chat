@@ -181,15 +181,11 @@ export default function ChatDisplay() {
       },
     ]);
     if (isTabActiveRef) {
-      ws.emit(
-        "Message:Seen",
-        JSON.stringify({ chatId: chat?._id, messageId: msg.message._id })
-      );
+      console.log("emit Delivered  >>>>");
+      ws.emit("Message:Delivered", JSON.stringify({ chatId: chat?._id }));
     }
-    ws.emit(
-      "Message:Delivered",
-      JSON.stringify({ chatId: chat?._id, messageId: msg.message._id })
-    );
+    console.log("emit Seen  >>>>");
+    ws.emit("Message:Seen", JSON.stringify({ chatId: chat?._id }));
   };
 
   const listenerAddedRef = useRef(false);
@@ -274,6 +270,9 @@ export default function ChatDisplay() {
   const handleTabEnter = () => {
     setIsTabActive(true);
     isTabActiveRef.current = true;
+    console.log("on TabEnter emit Seen+Delivered  >>>>");
+    ws.emit("Message:Seen", JSON.stringify({ chatId: chat?._id }));
+    ws.emit("Message:Delivered", JSON.stringify({ chatId: chat?._id }));
   };
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -356,14 +355,19 @@ export default function ChatDisplay() {
                   >
                     <p className="flex flex-col justify-center items-end gap-1">
                       {message.text}
-                      {message.byMe && (
-                        <CheckCheck
-                          className="h-4 w-4"
-                          color={
-                            message.delivered && message.seen ? "blue" : "gray"
-                          }
-                        />
-                      )}
+                      {message.byMe &&
+                        (message.delivered && message.seen ? (
+                          <CheckCheck
+                            className="h-4 w-4"
+                            color={
+                              message.delivered && message.seen
+                                ? "blue"
+                                : "gray"
+                            }
+                          />
+                        ) : (
+                          <Check className="h-4 w-4" color={"gray"} />
+                        ))}
                     </p>
                   </div>
                 ))}
