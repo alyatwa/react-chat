@@ -14,15 +14,16 @@ import { Check, CheckCheck } from "lucide-react";
 const USER_STATUS_TIMEOUT = 20000;
 
 export default function ChatList() {
-  const { chat, setChat, setMessages, chats, setChats } = useChats();
+  const { chat, setChat, setMessages, chats, setChats, filter } = useChats();
   const { data: messages, refetch } = useGetChat(chat?._id || null);
 
   const handleMessages = (chatH: Chat) => {
     if (chatH._id === (chat?._id ?? "")) return;
+
     setMessages([]);
     setChat(chatH);
     refetch();
-    ws.emit("Chat:joinRoom", JSON.stringify({ chatId: chatH._id }));
+    //ws.emit("Chat:joinRoom", JSON.stringify({ chatId: chatH._id }));
   };
 
   useEffect(() => {
@@ -89,10 +90,28 @@ export default function ChatList() {
     setStatus(data);
   };
 
+  const getRooms = (data: string) => {
+    const rooms = JSON.parse(data) as {
+      isJoined: boolean;
+      chatId: any;
+    }[];
+    setChats((prev) => {
+      return (prev ?? []).map((chat) => {
+        const room = rooms.find((s) => s.chatId === chat._id);
+        if (room) {
+          return { ...chat, isInTheRoom: room.isJoined };
+        }
+        return chat;
+      });
+    });
+  };
   useEffect(() => {
     if (isFirstUpdate) {
       console.log("start status listen socket");
-      ws.on("usersStatus", updateStatus);
+      ws.on("usersStatus", updateStatus); //
+      ws.emit("Chat:getRooms", JSON.stringify(filter));
+      ws.on("usersRooms", updateStatus);
+      ws.on("getRooms", getRooms);
 
       return () => {
         console.log("end status listen socket");
@@ -164,6 +183,9 @@ export default function ChatList() {
               </div>
 
               <div className="flex items-center gap-2">
+                {item.isInTheRoom && (
+                  <Badge variant="default">✔ User in the room</Badge>
+                )}
                 {item.archived && <Badge variant="default">archived</Badge>}
                 {item.muted && <Badge variant="default">muted</Badge>}
               </div>

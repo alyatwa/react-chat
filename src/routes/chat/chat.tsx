@@ -11,23 +11,19 @@ import { useGetChats } from "@/routes/chat/hooks/queries";
 import { useChats } from "@/context";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Header from "./components/header";
 import { isLoggedIn } from "@/reactQuery";
 import { CircleOff } from "lucide-react";
 
 export default function ChatP() {
-  const { chat, chats, setChats } = useChats();
-  const [tabData, setTabData] = useState({
-    privacy: "normal",
-    categoryId: "668e7dc4e8cfec5bcc752afc",
-    archived: false,
-  });
-  const { data, isLoading, refetch } = useGetChats(tabData);
+  const { chat, chats, setChats, filter, setFilter } = useChats();
+
+  const { data, isLoading, refetch } = useGetChats(filter);
   useEffect(() => {
     refetch();
     setChats(data ?? []);
-  }, [tabData, refetch]);
+  }, [filter, refetch]);
 
   useEffect(() => {
     setChats(data ?? []);
@@ -69,7 +65,7 @@ export default function ChatP() {
       };
     }
 
-    setTabData(data);
+    setFilter(data);
     refetch();
   };
 
