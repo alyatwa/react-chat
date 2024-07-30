@@ -8,7 +8,7 @@ import { Chat } from "../data";
 import { useChats } from "@/context";
 import { useGetChat } from "../hooks/queries";
 import { ws } from "@/ws";
-import { CheckCheck } from "lucide-react";
+import { Check, CheckCheck } from "lucide-react";
 //import { useChat } from "../use-chat";
 
 const USER_STATUS_TIMEOUT = 20000;
@@ -140,12 +140,18 @@ export default function ChatList() {
 
                 <div className="text-xs font-medium flex gap-1 flex-row items-center justify-between">
                   <div className="flex flex-row gap-2 line-clamp-2 mt-3 text-base text-muted-foreground">
-                    {item.isLastMessageByMe && (
-                      <CheckCheck
-                        className="h-5 w-5"
-                        color={item.seen ? "blue" : "gray"}
-                      />
-                    )}
+                    {item.isLastMessageByMe &&
+                      (item.delivered && item.seen ? (
+                        <CheckCheck
+                          className="h-4 w-4"
+                          color={item.delivered && item.seen ? "blue" : "gray"}
+                        />
+                      ) : item.delivered ? (
+                        <CheckCheck className="h-4 w-4" color={"gray"} />
+                      ) : (
+                        <Check className="h-4 w-4" color={"gray"} />
+                      ))}
+
                     {(item.lastMessageText ?? "No msgs yet").substring(0, 300)}
                   </div>
 

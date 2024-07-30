@@ -20,6 +20,7 @@ export interface Chat {
   avatar: string;
   //user: User;
   seen: boolean;
+  delivered: boolean;
   isLastMessageByMe?: boolean;
   lastMessageText?: string;
   lastSeenCount: number;
