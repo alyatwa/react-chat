@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/resizable";
 import ChatDisplay from "./components/chatDisplay";
 import ChatList from "./components/chatList";
-import { Loader } from "@/components/Loader";
 //import { useState } from "react";
 import { useGetChats } from "@/routes/chat/hooks/queries";
 import { useChats } from "@/context";
@@ -15,19 +14,20 @@ import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import Header from "./components/header";
 import { isLoggedIn } from "@/reactQuery";
+import { CircleOff } from "lucide-react";
 
 export default function ChatP() {
   const { chat, chats, setChats } = useChats();
-  const [archived, setArchived] = useState(false);
-  const { data, isLoading, refetch } = useGetChats({
+  const [tabData, setTabData] = useState({
     privacy: "normal",
     categoryId: "668e7dc4e8cfec5bcc752afc",
-    archived,
+    archived: false,
   });
+  const { data, isLoading, refetch } = useGetChats(tabData);
   useEffect(() => {
     refetch();
     setChats(data ?? []);
-  }, [archived, refetch]);
+  }, [tabData, refetch]);
 
   useEffect(() => {
     setChats(data ?? []);
@@ -40,7 +40,36 @@ export default function ChatP() {
     }
   }, []);
   const handleTabChange = (value: string) => {
-    setArchived(value == "archived");
+    //setArchived(value == "archived");
+    let data: any = {};
+    if (value == "archived") {
+      data = {
+        privacy: "normal",
+        categoryId: "668e7dc4e8cfec5bcc752afc",
+        archived: true,
+      };
+    } else if (value == "locked") {
+      data = {
+        privacy: "normal",
+        categoryId: "668e7dc4e8cfec5bcc752afc",
+        isLocked: true,
+        password: "123",
+      };
+    } else if (value == "unread") {
+      data = {
+        privacy: "normal",
+        categoryId: "668e7dc4e8cfec5bcc752afc",
+        isUnread: true,
+      };
+    } else if (value == "all") {
+      data = {
+        privacy: "normal",
+        categoryId: "668e7dc4e8cfec5bcc752afc",
+        archived: false,
+      };
+    }
+
+    setTabData(data);
     refetch();
   };
 
@@ -74,15 +103,57 @@ export default function ChatP() {
                   >
                     Archive
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="unread"
+                    className="text-zinc-600 dark:text-zinc-200"
+                  >
+                    Unread
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="locked"
+                    className="text-zinc-600 dark:text-zinc-200"
+                  >
+                    Locked
+                  </TabsTrigger>
                 </TabsList>
               </div>
               <Separator className="mb-2" />
 
               <TabsContent value="all" className="m-0">
-                {isLoading || !chats ? <Loader /> : <ChatList />}
+                {isLoading || !chats || chats.length == 0 ? (
+                  <div className=" w-full h-full flex flex-row items-center justify-center">
+                    <CircleOff color="white" className="w-10 h-10" />
+                  </div>
+                ) : (
+                  <ChatList />
+                )}
               </TabsContent>
               <TabsContent value="archived" className="m-0">
-                {isLoading || !chats ? <Loader /> : <ChatList />}
+                {isLoading || !chats || chats.length == 0 ? (
+                  <div className=" w-full h-full flex flex-row items-center justify-center">
+                    <CircleOff color="white" className="w-10 h-10" />
+                  </div>
+                ) : (
+                  <ChatList />
+                )}
+              </TabsContent>
+              <TabsContent value="unread" className="m-0">
+                {isLoading || !chats || chats.length == 0 ? (
+                  <div className=" w-full h-full flex flex-row items-center justify-center">
+                    <CircleOff color="white" className="w-10 h-10" />
+                  </div>
+                ) : (
+                  <ChatList />
+                )}
+              </TabsContent>
+              <TabsContent value="locked" className="m-0">
+                {isLoading || !chats || chats.length == 0 ? (
+                  <div className=" w-full h-full flex flex-row items-center justify-center">
+                    <CircleOff color="white" className="w-10 h-10" />
+                  </div>
+                ) : (
+                  <ChatList />
+                )}
               </TabsContent>
             </Tabs>
           </ResizablePanel>
