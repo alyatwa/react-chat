@@ -8,6 +8,7 @@ import { Chat } from "../data";
 import { useChats } from "@/context";
 import { useGetChat } from "../hooks/queries";
 import { ws } from "@/ws";
+import { CheckCheck } from "lucide-react";
 //import { useChat } from "../use-chat";
 
 const USER_STATUS_TIMEOUT = 20000;
@@ -136,20 +137,28 @@ export default function ChatList() {
                     })}
                   </div>
                 </div>
+
                 <div className="text-xs font-medium flex gap-1 flex-row items-center justify-between">
-                  {item.lastMessageText}
-                  <p className="bg-white rounded-full text-base w-8 h-8 p-2 text-black leading-none">
-                    {item.unreadCount}
-                  </p>
+                  <div className="flex flex-row gap-2 line-clamp-2 mt-3 text-base text-muted-foreground">
+                    {item.isLastMessageByMe && (
+                      <CheckCheck
+                        className="h-5 w-5"
+                        color={item.seen ? "blue" : "gray"}
+                      />
+                    )}
+                    {(item.lastMessageText ?? "No msgs yet").substring(0, 300)}
+                  </div>
+
+                  {item.unreadCount > 0 && (
+                    <p className="bg-white rounded-full text-base w-8 h-8 p-2 text-black leading-none">
+                      {item.unreadCount}
+                    </p>
+                  )}
                 </div>
-              </div>
-              <div className="line-clamp-2 text-xs text-muted-foreground">
-                {(item.lastMessageText ?? "No msgs yet").substring(0, 300)}
               </div>
 
               <div className="flex items-center gap-2">
                 {item.archived && <Badge variant="default">archived</Badge>}
-                {item.seen && <Badge variant="default">seen</Badge>}
                 {item.muted && <Badge variant="default">muted</Badge>}
               </div>
             </button>
