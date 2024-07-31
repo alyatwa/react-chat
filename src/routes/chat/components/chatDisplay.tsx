@@ -198,6 +198,7 @@ export default function ChatDisplay() {
     typingRef.current = true;
     setTyping(true);
   };
+
   /*********************    set msg to seen         ***************** */
   const messageSeen = (data: string) => {
     const seenMessages = JSON.parse(data) as IMessage[];

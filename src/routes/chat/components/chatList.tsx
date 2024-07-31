@@ -105,6 +105,42 @@ export default function ChatList() {
       });
     });
   };
+
+  /************************** typing ************************ */
+
+  const typingNow = (data: string) => {
+    const { chatId } = JSON.parse(data) as { chatId: string };
+
+    setChats((prev) => {
+      return (prev ?? []).map((chat) => {
+        if (chat._id === chatId) {
+          return { ...chat, typing: true };
+        }
+        return chat;
+      });
+    });
+  };
+
+  //timer to reset typing status
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => {
+      console.log("stopped typing.....");
+      setChats((prev) => {
+        return (prev ?? []).map((chat) => {
+          return { ...chat, typing: false };
+        });
+      });
+    }, 3000);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [chats]);
+
   useEffect(() => {
     if (isFirstUpdate) {
       console.log("start status listen socket");
@@ -112,6 +148,7 @@ export default function ChatList() {
       ws.emit("Chat:getRooms", JSON.stringify(filter));
       ws.on("usersRooms", updateStatus);
       ws.on("getRooms", getRooms);
+      ws.on("messageTyping", typingNow);
 
       return () => {
         console.log("end status listen socket");
@@ -151,9 +188,11 @@ export default function ChatList() {
                         : "text-muted-foreground"
                     )}
                   >
-                    {formatDistanceToNow(new Date(), {
-                      addSuffix: true,
-                    })}
+                    {item.typing
+                      ? "Typing..."
+                      : formatDistanceToNow(new Date(), {
+                          addSuffix: true,
+                        })}
                   </div>
                 </div>
 

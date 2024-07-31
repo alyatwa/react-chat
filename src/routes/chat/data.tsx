@@ -16,6 +16,7 @@ export interface Chat {
   archived: boolean;
   muted: boolean;
   online?: boolean;
+  typing?: boolean;
   isInTheRoom?: boolean;
   name: string;
   avatar: string;
