@@ -110,7 +110,7 @@ export default function ChatList() {
 
   const typingNow = (data: string) => {
     const { chats } = JSON.parse(data) as { chats: string[] };
-
+    console.log(chats);
     setChats((prev) => {
       return (prev ?? []).map((chat) => {
         const currentChat = chats.find((s) => s === chat._id);
@@ -123,10 +123,10 @@ export default function ChatList() {
   };
 
   //timer to reset typing status
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  //const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    timeoutRef.current = setTimeout(() => {
+    /* timeoutRef.current = setTimeout(() => {
       console.log("stopped typing.....");
       setChats((prev) => {
         return (prev ?? []).map((chat) => {
@@ -139,7 +139,7 @@ export default function ChatList() {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-    };
+    }; */
   }, [chats]);
 
   useEffect(() => {
