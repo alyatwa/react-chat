@@ -151,6 +151,8 @@ export default function ChatDisplay() {
 
   /***************** when user receive new message ************ */
   const newMessage = (msg: any) => {
+    console.log(msg);
+    if (msg.message.chatId != chat?._id) return;
     setMessages([
       ...(messagesRef.current || []),
       {
@@ -348,6 +350,7 @@ export default function ChatDisplay() {
     window.addEventListener("focus", handleWindowFocus);
 
     return () => {
+      setMessages([]);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleWindowBlur);
       window.removeEventListener("focus", handleWindowFocus);

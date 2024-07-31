@@ -57,6 +57,12 @@ export default function ChatP() {
         categoryId: "668e7dc4e8cfec5bcc752afc",
         isUnread: true,
       };
+    } else if (value == "anonymous") {
+      data = {
+        privacy: "anonymous",
+        categoryId: "668e7e2ce8cfec5bcc752afd",
+        isUnread: false,
+      };
     } else if (value == "all") {
       data = {
         privacy: "normal",
@@ -111,6 +117,12 @@ export default function ChatP() {
                   >
                     Locked
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="anonymous"
+                    className="text-zinc-600 dark:text-zinc-200"
+                  >
+                    Anonymous
+                  </TabsTrigger>
                 </TabsList>
               </div>
               <Separator className="mb-2" />
@@ -143,6 +155,16 @@ export default function ChatP() {
                 )}
               </TabsContent>
               <TabsContent value="locked" className="m-0">
+                {isLoading || !chats || chats.length == 0 ? (
+                  <div className=" w-full h-full flex flex-row items-center justify-center">
+                    <CircleOff color="white" className="w-10 h-10" />
+                  </div>
+                ) : (
+                  <ChatList />
+                )}
+              </TabsContent>
+
+              <TabsContent value="anonymous" className="m-0">
                 {isLoading || !chats || chats.length == 0 ? (
                   <div className=" w-full h-full flex flex-row items-center justify-center">
                     <CircleOff color="white" className="w-10 h-10" />

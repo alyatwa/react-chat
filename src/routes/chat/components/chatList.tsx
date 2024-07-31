@@ -9,30 +9,32 @@ import { useChats } from "@/context";
 import { useGetChat } from "../hooks/queries";
 import { ws } from "@/ws";
 import { Check, CheckCheck } from "lucide-react";
-//import { useChat } from "../use-chat";
 
 const USER_STATUS_TIMEOUT = 20000;
 
 export default function ChatList() {
   const { chat, setChat, setMessages, chats, setChats, filter } = useChats();
   const { data: messages, refetch } = useGetChat(chat?._id || null);
+  const initialFetchRef = useRef(false);
 
   const handleMessages = (chatH: Chat) => {
-    if (chatH._id === (chat?._id ?? "")) return;
+    // if (chatH._id === (chat?._id ?? "")) return;
 
     setMessages([]);
     setChat(chatH);
     refetch();
+    //toast(`Get chat:  ${chatH._id}  but refetch id ${chat?._id}`);
+    //refetch();
     //ws.emit("Chat:joinRoom", JSON.stringify({ chatId: chatH._id }));
   };
 
   useEffect(() => {
-    ///console.log("eff...............", messages);
-    if ((messages ?? []).length < 1) {
+    if (!initialFetchRef.current) {
+      initialFetchRef.current = true;
       refetch();
-    }
-    if (messages) {
+    } else if (messages) {
       setMessages(messages ?? []);
+      initialFetchRef.current = false;
     }
   }, [refetch, chat, messages]);
 
@@ -213,7 +215,6 @@ export default function ChatList() {
 
                     {(item.lastMessageText ?? "No msgs yet").substring(0, 300)}
                   </div>
-
                   {item.unreadCount > 0 && (
                     <p className="bg-white rounded-full text-base w-8 h-8 p-2 text-black leading-none">
                       {item.unreadCount}
@@ -221,7 +222,9 @@ export default function ChatList() {
                   )}
                 </div>
               </div>
-
+              <p className="mr-auto text-xs text-muted-foreground">
+                {item._id}
+              </p>
               <div className="flex items-center gap-2">
                 {item.isInTheRoom && (
                   <Badge variant="default">✔ User in the room</Badge>
