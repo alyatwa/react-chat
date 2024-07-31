@@ -109,11 +109,12 @@ export default function ChatList() {
   /************************** typing ************************ */
 
   const typingNow = (data: string) => {
-    const { chatId } = JSON.parse(data) as { chatId: string };
+    const { chats } = JSON.parse(data) as { chats: string[] };
 
     setChats((prev) => {
       return (prev ?? []).map((chat) => {
-        if (chat._id === chatId) {
+        const currentChat = chats.find((s) => s === chat._id);
+        if (currentChat) {
           return { ...chat, typing: true };
         }
         return chat;

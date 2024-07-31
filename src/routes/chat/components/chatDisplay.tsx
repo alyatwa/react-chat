@@ -273,6 +273,7 @@ export default function ChatDisplay() {
     timeoutRef.current = setTimeout(() => {
       setTyping(false);
       typingRef.current = false;
+      ws.emit("Message:StopTyping", JSON.stringify({ chatId: chat?._id }));
     }, 3000);
 
     return () => {
