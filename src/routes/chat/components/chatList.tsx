@@ -117,7 +117,7 @@ export default function ChatList() {
         if (currentChat) {
           return { ...chat, typing: true };
         }
-        return chat;
+        return { ...chat, typing: false };
       });
     });
   };
