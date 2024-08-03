@@ -39,7 +39,7 @@ export default function ChatList() {
   }, [refetch, chat, messages]);
 
   useEffect(() => {
-    const data: {
+    /*  const data: {
       archived?: boolean;
       privacy?: string;
       isLocked?: boolean;
@@ -48,7 +48,7 @@ export default function ChatList() {
       archived: false,
       privacy: "normal",
       categoryId: "668e7dc4e8cfec5bcc752afc",
-    };
+    }; */
     initStatus();
     setInterval(() => {
       ws.emit(
