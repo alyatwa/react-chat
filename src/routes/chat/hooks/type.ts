@@ -59,7 +59,7 @@ export interface Message {
   ownerUserId: string;
   text: string;
   chatId: string;
-  groupId: string | null;
+  groupId?: string | null;
   seen: boolean;
   delivered: boolean;
   seenAuth: string[];

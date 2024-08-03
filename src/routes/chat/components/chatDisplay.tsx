@@ -74,7 +74,7 @@ export default function ChatDisplay() {
   const [isTabActive, setIsTabActive] = useState(true);
   const isTabActiveRef = useRef(true);
 
-  const { messages, setMessages, chat } = useChats();
+  const { messages, setMessages, chat, group } = useChats();
   const messagesRef = useRef<Message[] | null>(messages);
   useEffect(() => {
     scrollToBottom();
@@ -100,6 +100,7 @@ export default function ChatDisplay() {
 
   const sendMessage = () => {
     if (inputLength === 0) return;
+    console.log(group);
     const messageId = new ObjectId().toHexString();
     setMessages([
       ...(messagesRef.current || []),
@@ -109,7 +110,9 @@ export default function ChatDisplay() {
         _id: messageId,
         ownerUserId: "",
         chatId: "",
-        groupId: null,
+
+        ...(group ? { groupId: group?._id ?? "" } : {}),
+
         seen: false,
         delivered: false,
         seenAuth: [],
@@ -139,12 +142,13 @@ export default function ChatDisplay() {
     ws.emit(
       "Message:Send",
       JSON.stringify({
-        chatId: chat?._id,
+        ...(chat ? { chatId: chat?._id } : {}),
+        // chatId: chat?._id,
         type: 1,
         mediaIds: [],
         messageId,
         text: input,
-        groupId: null,
+        ...(group ? { groupId: group?._id ?? "" } : {}),
       })
     );
   };

@@ -6,12 +6,28 @@ import { CheckCheck } from "lucide-react";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useGetGroup } from "../hooks/queries";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ws } from "@/ws";
+import { toast } from "@/components/ui/use-toast";
 
 export default function GroupList({ groups }: { groups: Group[] }) {
   const initialFetchRef = useRef(false);
   const { chat, setMessages, setGroup, group } = useChats();
   const { data: messages, refetch } = useGetGroup(group?._id || null);
+
+  const [isFirstUpdate, setIsFirstUpdate] = useState(false);
+
+  useEffect(() => {
+    initStatus();
+  }, [isFirstUpdate]);
+
+  const initStatus = () => {
+    if (!isFirstUpdate) {
+      setIsFirstUpdate(false); // Mark that the first update has occurred
+    } else {
+      setIsFirstUpdate(true);
+    }
+  };
 
   const handleMessages = (group: Group) => {
     console.log("group", group);
@@ -29,6 +45,19 @@ export default function GroupList({ groups }: { groups: Group[] }) {
       initialFetchRef.current = false;
     }
   }, [refetch, chat, messages]);
+
+  const newError = (error: any) => {
+    toast({ title: error });
+  };
+
+  useEffect(() => {
+    if (isFirstUpdate) {
+      console.log("start status listen socket");
+      ws.on("error", newError);
+
+      return () => {};
+    }
+  }, [isFirstUpdate]);
 
   return (
     <ScrollArea className="h-screen">
