@@ -24,13 +24,16 @@ export default function ChatP() {
   const { data, isLoading, refetch } = useGetChats(filter);
   useEffect(() => {
     refetch();
+
     setChats(data ?? []);
   }, [filter, refetch]);
 
   /**************************** refetch groups ****************************** */
   useEffect(() => {
     refetchGroups();
-    setGroups(groupsData ?? []);
+    if (groupsData) {
+      setGroups(groupsData ?? []);
+    }
   }, [refetchGroups]);
 
   useEffect(() => {
@@ -153,7 +156,7 @@ export default function ChatP() {
                     ) : tab.value != "group" ? (
                       <ChatList />
                     ) : (groupsData ?? []).length > 0 ? (
-                      <GroupList groups={groupsData ?? []} />
+                      <GroupList />
                     ) : (
                       <div className=" w-full h-full flex flex-row items-center justify-center">
                         <CircleOff color="white" className="w-10 h-10" />

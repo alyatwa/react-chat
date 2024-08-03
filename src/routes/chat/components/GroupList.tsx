@@ -10,16 +10,16 @@ import { useEffect, useRef, useState } from "react";
 import { ws } from "@/ws";
 import { toast } from "@/components/ui/use-toast";
 
-export default function GroupList({ groups }: { groups: Group[] }) {
+export default function GroupList() {
   const initialFetchRef = useRef(false);
-  const { chat, setMessages, setGroup, group } = useChats();
+  const { chat, setMessages, setGroup, group, setGroups, groups } = useChats();
   const { data: messages, refetch } = useGetGroup(group?._id || null);
 
   const [isFirstUpdate, setIsFirstUpdate] = useState(false);
 
   useEffect(() => {
     initStatus();
-  }, [isFirstUpdate]);
+  }, []);
 
   const initStatus = () => {
     if (!isFirstUpdate) {
@@ -44,20 +44,46 @@ export default function GroupList({ groups }: { groups: Group[] }) {
       setMessages(messages ?? []);
       initialFetchRef.current = false;
     }
-  }, [refetch, chat, messages]);
+  }, [refetch, group, messages]);
 
   const newError = (error: any) => {
+    console.log("error", error);
     toast({ title: error });
   };
 
-  useEffect(() => {
-    if (isFirstUpdate) {
-      console.log("start status listen socket");
-      ws.on("error", newError);
+  /*************************************************** */
+  const getRooms = (data: string) => {
+    const groups = JSON.parse(data) as {
+      isJoined: boolean;
+      groupId: any;
+    }[];
 
-      return () => {};
-    }
-  }, [isFirstUpdate]);
+    setGroups((prev) => {
+      return (prev ?? []).map((group) => {
+        const room = groups.find((s) => s.groupId === group._id);
+
+        if (room) {
+          return { ...group, isInTheRoom: room.isJoined };
+        }
+        return group;
+      });
+    });
+  };
+
+  useEffect(() => {
+    console.log("groups", groups);
+
+    return () => {};
+  }, [groups]);
+
+  useEffect(() => {
+    console.log("start status listen socket");
+    ws.on("error", newError);
+    ws.on("getGroupsRooms", getRooms);
+    ws.emit("Group:getRooms", "");
+
+    return () => {};
+  }, []);
 
   return (
     <ScrollArea className="h-screen">
