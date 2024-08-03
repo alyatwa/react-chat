@@ -7,7 +7,7 @@ import {
 import ChatDisplay from "./components/chatDisplay";
 import ChatList from "./components/chatList";
 //import { useState } from "react";
-import { useGetChats } from "@/routes/chat/hooks/queries";
+import { useGetChats, useGetGroups } from "@/routes/chat/hooks/queries";
 import { useChats } from "@/context";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -15,10 +15,11 @@ import { useEffect } from "react";
 import Header from "./components/header";
 import { isLoggedIn } from "@/reactQuery";
 import { CircleOff } from "lucide-react";
+import GroupList from "./components/GroupList";
 
 export default function ChatP() {
   const { chat, chats, setChats, filter, setFilter } = useChats();
-
+  const { data: groupsData, refetch: refetchGroups } = useGetGroups();
   const { data, isLoading, refetch } = useGetChats(filter);
   useEffect(() => {
     refetch();
@@ -38,7 +39,9 @@ export default function ChatP() {
   const handleTabChange = (value: string) => {
     //setArchived(value == "archived");
     let data: any = {};
-    if (value == "archived") {
+    if (value == "group") {
+      refetchGroups();
+    } else if (value == "archived") {
       data = {
         privacy: "normal",
         categoryId: "668e7dc4e8cfec5bcc752afc",
@@ -75,6 +78,32 @@ export default function ChatP() {
     refetch();
   };
 
+  const tabs = [
+    {
+      label: "All chats",
+      value: "all",
+    },
+    {
+      label: "Group",
+      value: "group",
+    },
+    {
+      label: "Archive",
+      value: "archived",
+    },
+    {
+      label: "Unread",
+      value: "unread",
+    },
+    {
+      label: "Locked",
+      value: "locked",
+    },
+    {
+      label: "Anonymous",
+      value: "anonymous",
+    },
+  ];
   return (
     <div className="flex flex-col w-full">
       <Header />
@@ -88,91 +117,40 @@ export default function ChatP() {
           }}
           className="h-full max-h-[800px] items-stretch"
         >
-          <ResizablePanel defaultSize={[265, 440, 655][1]} minSize={30}>
+          <ResizablePanel defaultSize={[265, 440, 655][0]} minSize={30}>
             <Tabs defaultValue="all" onValueChange={handleTabChange}>
-              <div className="flex items-center px-4 py-2">
-                <h1 className="text-xl font-bold">Chats</h1>
+              <div className="flex items-center px-2 py-2">
                 <TabsList className="ml-auto">
-                  <TabsTrigger
-                    value="all"
-                    className="text-zinc-600 dark:text-zinc-200"
-                  >
-                    All chats
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="archived"
-                    className="text-zinc-600 dark:text-zinc-200"
-                  >
-                    Archive
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="unread"
-                    className="text-zinc-600 dark:text-zinc-200"
-                  >
-                    Unread
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="locked"
-                    className="text-zinc-600 dark:text-zinc-200"
-                  >
-                    Locked
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="anonymous"
-                    className="text-zinc-600 dark:text-zinc-200"
-                  >
-                    Anonymous
-                  </TabsTrigger>
+                  {tabs.map((tab, index) => {
+                    return (
+                      <TabsTrigger
+                        key={index}
+                        value={tab.value}
+                        className="text-zinc-600 dark:text-zinc-200"
+                      >
+                        {tab.label}
+                      </TabsTrigger>
+                    );
+                  })}
                 </TabsList>
               </div>
               <Separator className="mb-2" />
 
-              <TabsContent value="all" className="m-0">
-                {isLoading || !chats || chats.length == 0 ? (
-                  <div className=" w-full h-full flex flex-row items-center justify-center">
-                    <CircleOff color="white" className="w-10 h-10" />
-                  </div>
-                ) : (
-                  <ChatList />
-                )}
-              </TabsContent>
-              <TabsContent value="archived" className="m-0">
-                {isLoading || !chats || chats.length == 0 ? (
-                  <div className=" w-full h-full flex flex-row items-center justify-center">
-                    <CircleOff color="white" className="w-10 h-10" />
-                  </div>
-                ) : (
-                  <ChatList />
-                )}
-              </TabsContent>
-              <TabsContent value="unread" className="m-0">
-                {isLoading || !chats || chats.length == 0 ? (
-                  <div className=" w-full h-full flex flex-row items-center justify-center">
-                    <CircleOff color="white" className="w-10 h-10" />
-                  </div>
-                ) : (
-                  <ChatList />
-                )}
-              </TabsContent>
-              <TabsContent value="locked" className="m-0">
-                {isLoading || !chats || chats.length == 0 ? (
-                  <div className=" w-full h-full flex flex-row items-center justify-center">
-                    <CircleOff color="white" className="w-10 h-10" />
-                  </div>
-                ) : (
-                  <ChatList />
-                )}
-              </TabsContent>
-
-              <TabsContent value="anonymous" className="m-0">
-                {isLoading || !chats || chats.length == 0 ? (
-                  <div className=" w-full h-full flex flex-row items-center justify-center">
-                    <CircleOff color="white" className="w-10 h-10" />
-                  </div>
-                ) : (
-                  <ChatList />
-                )}
-              </TabsContent>
+              {tabs.map((tab, index) => {
+                return (
+                  <TabsContent key={index} value={tab.value} className="m-0">
+                    {isLoading || !chats || chats.length == 0 ? (
+                      <div className=" w-full h-full flex flex-row items-center justify-center">
+                        <CircleOff color="white" className="w-10 h-10" />
+                      </div>
+                    ) : tab.value != "group" ? (
+                      <ChatList />
+                    ) : (
+                      <GroupList groups={groupsData ?? []} />
+                    )}
+                  </TabsContent>
+                );
+              })}
             </Tabs>
           </ResizablePanel>
 

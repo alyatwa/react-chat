@@ -3,6 +3,42 @@ interface Contact {
   name: string;
 }
 
+export interface Group {
+  _id: string;
+  name: string;
+  locked: boolean;
+  muted: boolean;
+  archived: boolean;
+  lastMessageText: string;
+  username: string;
+  unreadCount: number;
+  image: string;
+  typing?: boolean;
+  background: string;
+  isLastMessageByMe?: boolean;
+  delivered?: boolean;
+  seen?: boolean;
+  isInTheRoom?: boolean;
+}
+
+export interface GroupProps {
+  messages: Message[];
+  group: {
+    _id: string;
+    name: string;
+    ownerId: string;
+    members: string[];
+    admins: string[];
+    onlyAdminChat: boolean;
+    onlyAdminAddMembers: boolean;
+    locked: string[];
+    muted: string[];
+    archived: string[];
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
 interface Chat {
   _id: string;
   categoryId: string;
