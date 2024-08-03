@@ -30,7 +30,7 @@ const fetchGroup = async (groupId: string | null) => {
   if (!groupId) return null;
 
   const { data } = await apiRequest.get<{ data: GroupProps }>(
-    `/api/v1/chat/group/${groupId}`
+    `/api/v1/chat/group/get-messages/${groupId}`
   );
   return data.data.messages;
 };

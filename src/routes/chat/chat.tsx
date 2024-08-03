@@ -18,13 +18,20 @@ import { CircleOff } from "lucide-react";
 import GroupList from "./components/GroupList";
 
 export default function ChatP() {
-  const { chat, chats, setChats, filter, setFilter } = useChats();
+  const { chat, chats, setChats, filter, setFilter, group, groups, setGroups } =
+    useChats();
   const { data: groupsData, refetch: refetchGroups } = useGetGroups();
   const { data, isLoading, refetch } = useGetChats(filter);
   useEffect(() => {
     refetch();
     setChats(data ?? []);
   }, [filter, refetch]);
+
+  /**************************** refetch groups ****************************** */
+  useEffect(() => {
+    refetchGroups();
+    setGroups(groupsData ?? []);
+  }, [refetchGroups]);
 
   useEffect(() => {
     setChats(data ?? []);
@@ -160,7 +167,7 @@ export default function ChatP() {
 
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={[265, 440, 655][2]}>
-            {chats && chat && <ChatDisplay />}
+            {((chats && chat) || (groups && group)) && <ChatDisplay />}
           </ResizablePanel>
         </ResizablePanelGroup>
       </TooltipProvider>

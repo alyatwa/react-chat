@@ -14,8 +14,11 @@ import { Group, Message } from "@/routes/chat/hooks/type";
 type TChatContext = {
   /*  chats: Chat[];
   isLoading: boolean; */
-  group: any;
-  setGroup: Dispatch<SetStateAction<any>>;
+  group: Group | null;
+  groups: Group[] | null;
+  setGroup: Dispatch<SetStateAction<Group | null>>;
+  setGroups: Dispatch<SetStateAction<Group[] | null>>;
+
   filter: any;
   chats: Chat[] | null;
   setFilter: Dispatch<SetStateAction<any | null>>;
@@ -36,6 +39,7 @@ export const ChatProvider = ({ children }: Props): JSX.Element => {
   //const { data, isLoading } = useGetChats();
   const [chats, setChats] = useState<Chat[] | null>(null);
   const [group, setGroup] = useState<Group | null>(null);
+  const [groups, setGroups] = useState<Group[] | null>(null);
   const [filter, setFilter] = useState({
     privacy: "normal",
     categoryId: "668e7dc4e8cfec5bcc752afc",
@@ -48,7 +52,9 @@ export const ChatProvider = ({ children }: Props): JSX.Element => {
     chat,
     setChat,
     group,
+    groups,
     setGroup,
+    setGroups,
     filter,
     setFilter,
     messages,

@@ -14,6 +14,7 @@ export default function GroupList({ groups }: { groups: Group[] }) {
   const { data: messages, refetch } = useGetGroup(group?._id || null);
 
   const handleMessages = (group: Group) => {
+    console.log("group", group);
     setMessages([]);
     setGroup(group);
     refetch();
@@ -23,6 +24,7 @@ export default function GroupList({ groups }: { groups: Group[] }) {
       initialFetchRef.current = true;
       refetch();
     } else if (messages) {
+      console.log("messages  ", messages);
       setMessages(messages ?? []);
       initialFetchRef.current = false;
     }
