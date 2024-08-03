@@ -150,15 +150,16 @@ export default function ChatDisplay() {
   };
 
   /***************** when user receive new message ************ */
-  const newMessage = (msg: any) => {
-    console.log(msg);
-    if (msg.message.chatId != chat?._id) return;
+  const newMessage = (data: string) => {
+    //console.log(msg);
+    const msg = JSON.parse(data) as Message;
+    if (msg.chatId != chat?._id) return;
     setMessages([
       ...(messagesRef.current || []),
       {
-        _id: msg.message._id, // new ObjectId().toHexString(),
+        _id: msg._id, // new ObjectId().toHexString(),
         byMe: false,
-        text: msg.message.text,
+        text: msg.text,
         ownerUserId: "",
         chatId: "",
         groupId: null,

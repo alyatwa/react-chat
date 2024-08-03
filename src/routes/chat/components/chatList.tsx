@@ -51,7 +51,12 @@ export default function ChatList() {
     };
     initStatus();
     setInterval(() => {
-      ws.emit("Chat:usersStatus", JSON.stringify(data));
+      ws.emit(
+        "Chat:usersStatus",
+        JSON.stringify(
+          (chats ?? []).map((c) => ({ chatId: c._id, userId: c.userId }))
+        )
+      );
     }, USER_STATUS_TIMEOUT);
   }, []);
 

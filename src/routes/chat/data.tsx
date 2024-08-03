@@ -13,6 +13,7 @@
 // Define the Chat interface
 export interface Chat {
   _id: string;
+  userId: string;
   archived: boolean;
   muted: boolean;
   online?: boolean;

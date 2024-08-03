@@ -145,8 +145,12 @@ export default function ChatP() {
                       </div>
                     ) : tab.value != "group" ? (
                       <ChatList />
-                    ) : (
+                    ) : (groupsData ?? []).length > 0 ? (
                       <GroupList groups={groupsData ?? []} />
+                    ) : (
+                      <div className=" w-full h-full flex flex-row items-center justify-center">
+                        <CircleOff color="white" className="w-10 h-10" />
+                      </div>
                     )}
                   </TabsContent>
                 );
