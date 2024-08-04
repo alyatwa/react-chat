@@ -6,7 +6,7 @@ import { Check, Plus } from "lucide-react";
 import { ws } from "@/ws";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { toast } from "sonner";
-import { useGetFriends, useGetUser } from "../hooks/queries";
+import { useGetFriends, useGetUser, useStartChat } from "../hooks/queries";
 import {
   Command,
   CommandEmpty,
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { SuggestedFriend } from "../hooks/type";
+import { services } from "@/const";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -38,7 +39,16 @@ const Header = () => {
   const { data: friends, refetch } = useGetFriends();
   const { chat, setGreetUser } = useChats();
   const { data } = useGetUser();
+  const { mutateAsync: startChat } = useStartChat();
 
+  const handleStartChat = async (userId: string) => {
+    setOpen(false);
+    setGreetUser(userId);
+    await startChat({
+      userId,
+      categoryId: services.greetChatId,
+    });
+  };
   const leaveChat = () => {
     if (!chat) {
       ws.emit("leaveRoom", chat, (err: any) => {
@@ -212,10 +222,7 @@ const Header = () => {
             )}
             <Button
               disabled={selectedUsers.length < 1}
-              onClick={() => {
-                setOpen(false);
-                setGreetUser(selectedUsers[0]._id);
-              }}
+              onClick={() => handleStartChat(selectedUsers[0]._id)}
             >
               Continue
             </Button>

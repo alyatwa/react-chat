@@ -17,6 +17,7 @@ export const userQueryKeys = {
 
 export const chatMutationKeys = {
   sendGreet: () => ["greet"] as const,
+  startChat: () => ["start-chat"] as const,
 };
 
 /*********************** Get suggested friends *************************** */
@@ -32,7 +33,25 @@ export const useGetFriends = () =>
     queryKey: userQueryKeys.getFriends(),
     queryFn: () => fetchFriends(),
   });
+
 /************************** Start greet ************************************* */
+const startChat = async ({
+  userId,
+  categoryId,
+}: {
+  userId: string;
+  categoryId: string;
+}) => {
+  const { data } = await apiRequest.post<{ data: any }>(
+    `/api/v1/chat/start-chat/${userId}?categoryId=${categoryId}`
+  );
+  return data.data;
+};
+export const useStartChat = () =>
+  useMutation({
+    mutationKey: chatMutationKeys.startChat(),
+    mutationFn: startChat,
+  });
 
 /************************* Send greet msg  *********************** */
 const sendGreet = async ({

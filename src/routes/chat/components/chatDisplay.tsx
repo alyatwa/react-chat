@@ -19,14 +19,13 @@ import { Message } from "../hooks/type";
 import { CheckCheck } from "lucide-react";
 import { ObjectId } from "bson";
 import { useSendGreet } from "../hooks/queries";
-import { toast } from "sonner";
 
 export default function ChatDisplay() {
   const [isTabActive, setIsTabActive] = useState(true);
   const isTabActiveRef = useRef(true);
   const [input, setInput] = useState("");
   const { mutateAsync: sendGreet, isSuccess } = useSendGreet();
-  const { messages, setMessages, chat, group, isGreet, greetUser } = useChats();
+  const { messages, setMessages, chat, group, isGreet } = useChats();
   const messagesRef = useRef<Message[] | null>(messages);
 
   useEffect(() => {
@@ -93,9 +92,6 @@ export default function ChatDisplay() {
 
     scrollToBottom();
     if (isGreet) {
-      if (!greetUser) {
-        toast("Select user to greet");
-      }
       handleSendMessage(); ///sendGreet({ userId: "", message: input });
     } else {
       ws.emit(
@@ -119,7 +115,7 @@ export default function ChatDisplay() {
   const handleSendMessage = async () => {
     try {
       await sendGreet({
-        userId: greetUser ?? "",
+        userId: chat?.userId ?? "",
         message: input,
       });
     } catch (error: any) {

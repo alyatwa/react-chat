@@ -16,6 +16,7 @@ import Header from "./components/header";
 import { isLoggedIn } from "@/reactQuery";
 import { CircleOff } from "lucide-react";
 import GroupList from "./components/GroupList";
+import { services } from "@/const";
 
 export default function ChatP() {
   const {
@@ -72,7 +73,7 @@ export default function ChatP() {
       setIsGreet(true);
       data = {
         privacy: "normal",
-        categoryId: "668e7af1e8cfec5bcc752af8",
+        categoryId: services.greetChatId,
       };
     } else if (value == "locked") {
       setIsGreet(false);
