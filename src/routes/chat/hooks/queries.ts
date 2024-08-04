@@ -43,11 +43,11 @@ export const useGetGroup = (groupId: string | null) =>
 
 /************************ Get chat ****************************** */
 const fetchChats = async (query: any) => {
-  const { data } = await apiRequest.post<{ data: Chat[] }>(
+  const { data } = await apiRequest.post<{ data: { chats: Chat[] } }>(
     "/api/v1/chat/get-chats",
     query
   );
-  return data.data || [];
+  return data.data.chats || [];
 };
 
 export const useGetChats = (query: any) =>

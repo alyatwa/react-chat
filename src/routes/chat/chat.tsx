@@ -57,6 +57,11 @@ export default function ChatP() {
         categoryId: "668e7dc4e8cfec5bcc752afc",
         archived: true,
       };
+    } else if (value == "greet") {
+      data = {
+        privacy: "normal",
+        categoryId: "668e7af1e8cfec5bcc752af8",
+      };
     } else if (value == "locked") {
       data = {
         privacy: "normal",
@@ -92,6 +97,10 @@ export default function ChatP() {
     {
       label: "All chats",
       value: "all",
+    },
+    {
+      label: "Greet",
+      value: "greet",
     },
     {
       label: "Group",
