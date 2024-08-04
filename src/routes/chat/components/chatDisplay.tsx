@@ -1,4 +1,4 @@
-import { Check, Plus, Send } from "lucide-react";
+import { Check, Send } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,29 +9,8 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useChats } from "@/context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ws } from "@/ws";
@@ -39,53 +18,26 @@ import { useEffect, useRef, useState } from "react";
 import { Message } from "../hooks/type";
 import { CheckCheck } from "lucide-react";
 import { ObjectId } from "bson";
-
-const users = [
-  {
-    name: "Olivia Martin",
-    email: "m@example.com",
-    avatar: "/avatars/01.png",
-  },
-  {
-    name: "Isabella Nguyen",
-    email: "isabella.nguyen@email.com",
-    avatar: "/avatars/03.png",
-  },
-  {
-    name: "Emma Wilson",
-    email: "emma@example.com",
-    avatar: "/avatars/05.png",
-  },
-  {
-    name: "Jackson Lee",
-    email: "lee@example.com",
-    avatar: "/avatars/02.png",
-  },
-  {
-    name: "William Kim",
-    email: "will@email.com",
-    avatar: "/avatars/04.png",
-  },
-] as const;
-
-type User = (typeof users)[number];
+import { useSendGreet } from "../hooks/queries";
+import { toast } from "sonner";
 
 export default function ChatDisplay() {
   const [isTabActive, setIsTabActive] = useState(true);
   const isTabActiveRef = useRef(true);
-
-  const { messages, setMessages, chat, group } = useChats();
+  const [input, setInput] = useState("");
+  const { mutateAsync: sendGreet, isSuccess } = useSendGreet();
+  const { messages, setMessages, chat, group, isGreet, greetUser } = useChats();
   const messagesRef = useRef<Message[] | null>(messages);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
   // Update the messagesRef.current on messages state change
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
 
-  const [open, setOpen] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isFirstUpdate, setIsFirstUpdate] = useState(false);
 
   useEffect(() => {
@@ -95,62 +47,85 @@ export default function ChatDisplay() {
     messagesRef.current = messages;
   }, [messages, isFirstUpdate]);
 
-  const [input, setInput] = useState("");
   const inputLength = input.trim().length;
 
   const sendMessage = () => {
     if (inputLength === 0) return;
-    console.log(group);
+
     const messageId = new ObjectId().toHexString();
-    setMessages([
-      ...(messagesRef.current || []),
-      {
-        byMe: true,
-        text: input,
-        _id: messageId,
-        ownerUserId: "",
-        chatId: "",
+    if (isSuccess || !isGreet) {
+      setMessages([
+        ...(messagesRef.current || []),
+        {
+          byMe: true,
+          text: input,
+          _id: messageId,
+          ownerUserId: "",
+          chatId: "",
 
-        ...(group ? { groupId: group?._id ?? "" } : {}),
+          ...(group ? { groupId: group?._id ?? "" } : {}),
 
-        seen: false,
-        delivered: false,
-        seenAuth: [],
-        deliveredAuth: [],
-        attachments: [],
-        isDeleted: false,
-        isReply: false,
-        type: 0,
-        media: [],
-        love: [],
-        wow: [],
-        sad: [],
-        angry: [],
-        like: [],
-        sharesCount: 0,
-        likesCount: 0,
-        loveCount: 0,
-        wowCount: 0,
-        sadCount: 0,
-        angryCount: 0,
-        createdAt: "",
-        updatedAt: "",
-      },
-    ]);
-    setInput("");
+          seen: false,
+          delivered: false,
+          seenAuth: [],
+          deliveredAuth: [],
+          attachments: [],
+          isDeleted: false,
+          isReply: false,
+          type: 0,
+          media: [],
+          love: [],
+          wow: [],
+          sad: [],
+          angry: [],
+          like: [],
+          sharesCount: 0,
+          likesCount: 0,
+          loveCount: 0,
+          wowCount: 0,
+          sadCount: 0,
+          angryCount: 0,
+          createdAt: "",
+          updatedAt: "",
+        },
+      ]);
+    }
+
     scrollToBottom();
-    ws.emit(
-      "Message:Send",
-      JSON.stringify({
-        ...(chat ? { chatId: chat?._id } : {}),
-        // chatId: chat?._id,
-        type: 1,
-        mediaIds: [],
-        messageId,
-        text: input,
-        ...(group ? { groupId: group?._id ?? "" } : {}),
-      })
-    );
+    if (isGreet) {
+      if (!greetUser) {
+        toast("Select user to greet");
+      }
+      handleSendMessage(); ///sendGreet({ userId: "", message: input });
+    } else {
+      ws.emit(
+        "Message:Send",
+        JSON.stringify({
+          ...(chat ? { chatId: chat?._id } : {}),
+          // chatId: chat?._id,
+          type: 1,
+          mediaIds: [],
+          messageId,
+          text: input,
+          ...(group ? { groupId: group?._id ?? "" } : {}),
+        })
+      );
+    }
+
+    setInput("");
+  };
+
+  /********************** Handel greet ***************************** */
+  const handleSendMessage = async () => {
+    try {
+      await sendGreet({
+        userId: greetUser ?? "",
+        message: input,
+      });
+    } catch (error: any) {
+      ///toast(`Error Greet  ${error.response.data.error.message}`);
+      console.log("Error sending message: ", error.response.data.error.message);
+    }
   };
 
   /***************** when user receive new message ************ */
@@ -377,27 +352,12 @@ export default function ChatDisplay() {
             <div>
               <p className="text-sm font-medium leading-none">
                 username {typing ? "Typing now..." : ""}{" "}
+                {isGreet ? "Greet Msg" : ""}
                 {isTabActive ? " You see the chat" : "You left the chat"}
               </p>
               <p className="text-sm text-muted-foreground">Date</p>
             </div>
           </div>
-          <TooltipProvider delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="ml-auto rounded-full"
-                  onClick={() => setOpen(true)}
-                >
-                  <Plus className="h-4 w-4" />
-                  <span className="sr-only">New message</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent sideOffset={10}>New message</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="h-[385px] ">
@@ -473,90 +433,6 @@ export default function ChatDisplay() {
           </form>
         </CardFooter>
       </Card>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="gap-0 p-0 outline-none">
-          <DialogHeader className="px-4 pb-4 pt-5">
-            <DialogTitle>New message</DialogTitle>
-            <DialogDescription>
-              Invite a user to this thread. This will create a new group
-              message.
-            </DialogDescription>
-          </DialogHeader>
-          <Command className="overflow-hidden rounded-t-none border-t">
-            <CommandInput placeholder="Search user..." />
-            <CommandList>
-              <CommandEmpty>No users found.</CommandEmpty>
-              <CommandGroup className="p-2">
-                {users.map((user) => (
-                  <CommandItem
-                    key={user.email}
-                    className="flex items-center px-2"
-                    onSelect={() => {
-                      if (selectedUsers.includes(user)) {
-                        return setSelectedUsers(
-                          selectedUsers.filter(
-                            (selectedUser) => selectedUser !== user
-                          )
-                        );
-                      }
-
-                      return setSelectedUsers(
-                        [...users].filter((u) =>
-                          [...selectedUsers, user].includes(u)
-                        )
-                      );
-                    }}
-                  >
-                    <Avatar>
-                      <AvatarImage src={user.avatar} alt="Image" />
-                      <AvatarFallback>{user.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="ml-2">
-                      <p className="text-sm font-medium leading-none">
-                        {user.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-                    {selectedUsers.includes(user) ? (
-                      <Check className="ml-auto flex h-5 w-5 text-primary" />
-                    ) : null}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-          <DialogFooter className="flex items-center border-t p-4 sm:justify-between">
-            {selectedUsers.length > 0 ? (
-              <div className="flex -space-x-2 overflow-hidden">
-                {selectedUsers.map((user) => (
-                  <Avatar
-                    key={user.email}
-                    className="inline-block border-2 border-background"
-                  >
-                    <AvatarImage src={user.avatar} />
-                    <AvatarFallback>{user.name[0]}</AvatarFallback>
-                  </Avatar>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Select users to add to this thread.
-              </p>
-            )}
-            <Button
-              disabled={selectedUsers.length < 2}
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              Continue
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

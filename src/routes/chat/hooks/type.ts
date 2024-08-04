@@ -3,6 +3,14 @@ interface Contact {
   name: string;
 }
 
+export interface SuggestedFriend {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  mutualFriendsCount: number;
+  profilePicture: string;
+}
+
 export interface Group {
   _id: string;
   name: string;

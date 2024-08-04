@@ -18,8 +18,17 @@ import { CircleOff } from "lucide-react";
 import GroupList from "./components/GroupList";
 
 export default function ChatP() {
-  const { chat, chats, setChats, filter, setFilter, group, groups, setGroups } =
-    useChats();
+  const {
+    chat,
+    chats,
+    setChats,
+    filter,
+    setFilter,
+    group,
+    groups,
+    setGroups,
+    setIsGreet,
+  } = useChats();
   const { data: groupsData, refetch: refetchGroups } = useGetGroups();
   const { data, isLoading, refetch } = useGetChats(filter);
   useEffect(() => {
@@ -51,18 +60,22 @@ export default function ChatP() {
     let data: any = {};
     if (value == "group") {
       refetchGroups();
+      setIsGreet(false);
     } else if (value == "archived") {
+      setIsGreet(false);
       data = {
         privacy: "normal",
         categoryId: "668e7dc4e8cfec5bcc752afc",
         archived: true,
       };
     } else if (value == "greet") {
+      setIsGreet(true);
       data = {
         privacy: "normal",
         categoryId: "668e7af1e8cfec5bcc752af8",
       };
     } else if (value == "locked") {
+      setIsGreet(false);
       data = {
         privacy: "normal",
         categoryId: "668e7dc4e8cfec5bcc752afc",
@@ -70,18 +83,21 @@ export default function ChatP() {
         password: "123",
       };
     } else if (value == "unread") {
+      setIsGreet(false);
       data = {
         privacy: "normal",
         categoryId: "668e7dc4e8cfec5bcc752afc",
         isUnread: true,
       };
     } else if (value == "anonymous") {
+      setIsGreet(false);
       data = {
         privacy: "anonymous",
         categoryId: "668e7e2ce8cfec5bcc752afd",
         isUnread: false,
       };
     } else if (value == "all") {
+      setIsGreet(false);
       data = {
         privacy: "normal",
         categoryId: "668e7dc4e8cfec5bcc752afc",

@@ -49,12 +49,12 @@ export const queryClient = new QueryClient({
         }
         if (serverResponse.statusCode === 401) {
           toast("Forbidden Access", {
-            description: serverResponse.message,
+            description: error.message,
           });
           return;
         }
         toast("Bad Request", {
-          description: serverResponse.message,
+          description: error.response?.data.error.message,
         });
       }
     },

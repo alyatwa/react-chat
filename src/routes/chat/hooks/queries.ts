@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { apiRequest } from "@/config/request";
 import { Chat, User } from "../data";
-import { Group, GroupProps, MessageProp } from "./type";
+import { Group, GroupProps, MessageProp, SuggestedFriend } from "./type";
 
 export const chatQueryKeys = {
   getChats: () => ["chats"] as const,
@@ -10,6 +10,49 @@ export const chatQueryKeys = {
   getGroups: () => ["groups"] as const,
   getGroup: () => ["group"] as const,
 };
+
+export const userQueryKeys = {
+  getFriends: () => ["friends"] as const,
+};
+
+export const chatMutationKeys = {
+  sendGreet: () => ["greet"] as const,
+};
+
+/*********************** Get suggested friends *************************** */
+const fetchFriends = async () => {
+  const { data } = await apiRequest.get<{ data: SuggestedFriend[] }>(
+    "/api/v1/users/suggest?limit=10&page=1"
+  );
+  return data.data || [];
+};
+
+export const useGetFriends = () =>
+  useQuery({
+    queryKey: userQueryKeys.getFriends(),
+    queryFn: () => fetchFriends(),
+  });
+/************************** Start greet ************************************* */
+
+/************************* Send greet msg  *********************** */
+const sendGreet = async ({
+  userId,
+  message,
+}: {
+  userId: string;
+  message: string;
+}) => {
+  const { data } = await apiRequest.post<{ data: any }>(
+    `/api/v1/users/greet/${userId}`,
+    JSON.stringify({ message })
+  );
+  return data.data;
+};
+export const useSendGreet = () =>
+  useMutation({
+    mutationKey: chatMutationKeys.sendGreet(),
+    mutationFn: sendGreet,
+  });
 
 /***************************** Get groups ************************ */
 const fetchGroups = async () => {
