@@ -15,10 +15,26 @@ export const userQueryKeys = {
   getFriends: () => ["friends"] as const,
 };
 
+export const userMutationKeys = {
+  sendFriendRequest: () => ["friend-request"] as const,
+};
+
 export const chatMutationKeys = {
   sendGreet: () => ["greet"] as const,
   startChat: () => ["start-chat"] as const,
 };
+/************************* Send friend request *************************** */
+const sendFriendRequest = async ({ userId }: { userId: string }) => {
+  const { data } = await apiRequest.post<{ data: any }>(
+    `/api/v1/friends/sendFriendRequest/${userId}`
+  );
+  return data.data;
+};
+export const useSendFriendRequest = () =>
+  useMutation({
+    mutationKey: userMutationKeys.sendFriendRequest(),
+    mutationFn: sendFriendRequest,
+  });
 
 /*********************** Get suggested friends *************************** */
 const fetchFriends = async () => {

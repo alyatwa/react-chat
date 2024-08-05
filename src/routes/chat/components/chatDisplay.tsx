@@ -24,7 +24,7 @@ export default function ChatDisplay() {
   const [isTabActive, setIsTabActive] = useState(true);
   const isTabActiveRef = useRef(true);
   const [input, setInput] = useState("");
-  const { mutateAsync: sendGreet, isSuccess } = useSendGreet();
+  const { mutateAsync: sendGreet } = useSendGreet();
   const { messages, setMessages, chat, group, isGreet } = useChats();
   const messagesRef = useRef<Message[] | null>(messages);
 
@@ -50,49 +50,14 @@ export default function ChatDisplay() {
 
   const sendMessage = () => {
     if (inputLength === 0) return;
-
     const messageId = new ObjectId().toHexString();
-    if (isSuccess || !isGreet) {
-      setMessages([
-        ...(messagesRef.current || []),
-        {
-          byMe: true,
-          text: input,
-          _id: messageId,
-          ownerUserId: "",
-          chatId: "",
-
-          ...(group ? { groupId: group?._id ?? "" } : {}),
-
-          seen: false,
-          delivered: false,
-          seenAuth: [],
-          deliveredAuth: [],
-          attachments: [],
-          isDeleted: false,
-          isReply: false,
-          type: 0,
-          media: [],
-          love: [],
-          wow: [],
-          sad: [],
-          angry: [],
-          like: [],
-          sharesCount: 0,
-          likesCount: 0,
-          loveCount: 0,
-          wowCount: 0,
-          sadCount: 0,
-          angryCount: 0,
-          createdAt: "",
-          updatedAt: "",
-        },
-      ]);
+    if (!isGreet) {
+      updateMessages(messageId);
     }
 
     scrollToBottom();
     if (isGreet) {
-      handleSendMessage(); ///sendGreet({ userId: "", message: input });
+      handleSendMessage(messageId); ///sendGreet({ userId: "", message: input });
     } else {
       ws.emit(
         "Message:Send",
@@ -112,16 +77,58 @@ export default function ChatDisplay() {
   };
 
   /********************** Handel greet ***************************** */
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (messageId: string) => {
     try {
       await sendGreet({
         userId: chat?.userId ?? "",
         message: input,
+      }).then(() => {
+        updateMessages(messageId);
       });
     } catch (error: any) {
       ///toast(`Error Greet  ${error.response.data.error.message}`);
       console.log("Error sending message: ", error.response.data.error.message);
     }
+  };
+
+  /**********************Update msgs*******************************/
+
+  const updateMessages = (messageId: string) => {
+    setMessages([
+      ...(messagesRef.current || []),
+      {
+        byMe: true,
+        text: input,
+        _id: messageId,
+        ownerUserId: "",
+        chatId: "",
+
+        ...(group ? { groupId: group?._id ?? "" } : {}),
+
+        seen: false,
+        delivered: false,
+        seenAuth: [],
+        deliveredAuth: [],
+        attachments: [],
+        isDeleted: false,
+        isReply: false,
+        type: 0,
+        media: [],
+        love: [],
+        wow: [],
+        sad: [],
+        angry: [],
+        like: [],
+        sharesCount: 0,
+        likesCount: 0,
+        loveCount: 0,
+        wowCount: 0,
+        sadCount: 0,
+        angryCount: 0,
+        createdAt: "",
+        updatedAt: "",
+      },
+    ]);
   };
 
   /***************** when user receive new message ************ */

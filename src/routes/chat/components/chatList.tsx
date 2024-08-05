@@ -6,14 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Chat } from "../data";
 import { useChats } from "@/context";
-import { useGetChat } from "../hooks/queries";
+import { useGetChat, useSendFriendRequest } from "../hooks/queries";
 import { ws } from "@/ws";
 import { Check, CheckCheck } from "lucide-react";
+import { toast } from "sonner";
 
 const USER_STATUS_TIMEOUT = 20000;
 
 export default function ChatList() {
-  const { chat, setChat, setMessages, chats, setChats, filter } = useChats();
+  const { chat, setChat, setMessages, chats, setChats, filter, isGreet } =
+    useChats();
   const { data: messages, refetch } = useGetChat(chat?._id || null);
   const initialFetchRef = useRef(false);
 
@@ -165,6 +167,15 @@ export default function ChatList() {
     }
   }, [isFirstUpdate]);
 
+  /*********************** Send friend request ********************************* */
+  const { mutateAsync: sendFriendRequest } = useSendFriendRequest();
+  const handelFriendRequest = async (userId: string) => {
+    await sendFriendRequest({
+      userId,
+    }).then(() => {
+      toast("Request Send successfully");
+    });
+  };
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-2 p-4 pt-0">
@@ -230,6 +241,17 @@ export default function ChatList() {
               <p className="mr-auto text-xs text-muted-foreground">
                 {item._id}
               </p>
+              {isGreet && (
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                    onClick={() => handelFriendRequest(item.userId)}
+                  >
+                    Send friend request
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center gap-2">
                 {item.isInTheRoom && (
                   <Badge variant="default">✔ User in the room</Badge>
