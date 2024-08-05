@@ -69,6 +69,12 @@ export default function ChatP() {
         categoryId: "668e7dc4e8cfec5bcc752afc",
         archived: true,
       };
+    } else if (value == "services") {
+      setIsGreet(false);
+      data = {
+        privacy: "normal",
+        isServices: true,
+      };
     } else if (value == "greet") {
       setIsGreet(true);
       data = {
@@ -118,6 +124,10 @@ export default function ChatP() {
     {
       label: "Greet",
       value: "greet",
+    },
+    {
+      label: "Services",
+      value: "services",
     },
     {
       label: "Group",
